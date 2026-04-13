@@ -4,488 +4,631 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PitchForge — AI Cold Email Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #ffffff;
-      --bg-secondary: #f7f7f5;
-      --bg-tertiary: #f0efe9;
-      --text: #1a1a18;
-      --text-secondary: #5a5a55;
-      --text-tertiary: #9a9a94;
-      --border: rgba(0,0,0,0.10);
-      --border-strong: rgba(0,0,0,0.22);
-      --accent: #1a6b4a;
-      --accent-bg: #e1f5ee;
-      --accent-text: #085041;
-      --danger: #a32d2d;
-      --danger-bg: #fcebeb;
-      --info-bg: #e6f1fb;
-      --info-text: #0c447c;
-      --info-border: #185fa5;
-      --radius: 8px;
-      --radius-lg: 12px;
+      --forest:           #0b1e13;
+      --forest-mid:       #142b1d;
+      --forest-light:     #1d3d28;
+      --mint:             #00d68f;
+      --mint-dim:         #00b578;
+      --mint-pale:        rgba(0,214,143,0.12);
+      --cream:            #f9f7f1;
+      --cream-dark:       #f0ede5;
+      --white:            #ffffff;
+      --ink:              #0f1a13;
+      --ink-mid:          #3a4e3f;
+      --ink-light:        #7a8f80;
+      --ink-xlight:       #b0c0b5;
+      --border:           rgba(15,26,19,0.10);
+      --border-mid:       rgba(15,26,19,0.18);
+      --on-dark-border:   rgba(255,255,255,0.10);
+      --on-dark-text:     rgba(255,255,255,0.50);
+      --radius:           10px;
+      --radius-lg:        16px;
+      --radius-xl:        24px;
+      --font-display:     'Fraunces', Georgia, serif;
+      --font-body:        'DM Sans', system-ui, sans-serif;
     }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #1c1c1a;
-        --bg-secondary: #252523;
-        --bg-tertiary: #2a2a27;
-        --text: #f0efe9;
-        --text-secondary: #a8a89f;
-        --text-tertiary: #6a6a62;
-        --border: rgba(255,255,255,0.10);
-        --border-strong: rgba(255,255,255,0.22);
-        --accent: #5dcaa5;
-        --accent-bg: #04342c;
-        --accent-text: #9fe1cb;
-        --danger: #f09595;
-        --danger-bg: #501313;
-        --info-bg: #042c53;
-        --info-text: #85b7eb;
-        --info-border: #378add;
-      }
-    }
+    html { scroll-behavior: smooth; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg-tertiary);
-      color: var(--text);
+      font-family: var(--font-body);
+      background: var(--cream);
+      color: var(--ink);
       line-height: 1.6;
-      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
 
-    .page {
-      max-width: 780px;
-      margin: 0 auto;
-      padding: 0 1.25rem 4rem;
-      background: var(--bg);
-      min-height: 100vh;
+    /* ── SETUP BANNER ── */
+    #setup-banner {
+      background: #14140f;
+      color: rgba(255,255,255,0.6);
+      font-size: 12px;
+      text-align: center;
+      padding: 10px 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
     }
+    #setup-banner .banner-label { color: #ffcc44; font-weight: 500; }
+    #api-key-input {
+      padding: 5px 10px;
+      font-size: 12px;
+      font-family: var(--font-body);
+      border: 0.5px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      background: rgba(255,255,255,0.07);
+      color: white;
+      outline: none;
+      width: 240px;
+    }
+    #api-key-input::placeholder { color: rgba(255,255,255,0.25); }
+    #save-key-btn {
+      padding: 5px 14px;
+      font-size: 12px;
+      font-family: var(--font-body);
+      background: var(--mint);
+      color: var(--forest);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    #key-status { font-size: 12px; }
 
-    /* Nav */
+    /* ── NAV ── */
     nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--forest);
+      border-bottom: 0.5px solid var(--on-dark-border);
+      padding: 0 2rem;
+    }
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.25rem 0;
-      border-bottom: 0.5px solid var(--border);
-      margin-bottom: 2.5rem;
+      height: 60px;
     }
-
     .logo {
       display: flex;
       align-items: center;
       gap: 10px;
-      font-weight: 500;
-      font-size: 16px;
       text-decoration: none;
-      color: var(--text);
     }
-
-    .logo-icon {
-      width: 28px;
-      height: 28px;
-      background: var(--accent-bg);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .logo-mark {
+      width: 32px; height: 32px;
+      background: var(--mint);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
     }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 1.25rem;
+    .logo-name {
+      font-family: var(--font-display);
+      font-size: 18px; font-weight: 500;
+      color: white;
+      letter-spacing: -0.02em;
     }
-
+    .nav-links { display: flex; align-items: center; gap: 1.5rem; }
     .nav-link {
       font-size: 13px;
-      color: var(--text-secondary);
+      color: var(--on-dark-text);
       text-decoration: none;
       cursor: pointer;
+      transition: color 0.15s;
+      background: none;
+      border: none;
+      font-family: var(--font-body);
     }
-
-    .btn {
-      display: inline-block;
+    .nav-link:hover { color: white; }
+    .nav-cta {
       padding: 8px 20px;
-      font-size: 13px;
-      font-weight: 500;
-      border: 0.5px solid var(--border-strong);
-      border-radius: var(--radius);
-      background: transparent;
-      color: var(--text);
+      background: var(--mint);
+      color: var(--forest);
+      border: none; border-radius: var(--radius);
+      font-size: 13px; font-weight: 500;
+      font-family: var(--font-body);
       cursor: pointer;
-      text-decoration: none;
       transition: background 0.15s;
-      font-family: inherit;
     }
+    .nav-cta:hover { background: var(--mint-dim); }
 
-    .btn:hover { background: var(--bg-secondary); }
-    .btn:active { transform: scale(0.98); }
-
-    .btn-primary {
-      background: var(--accent-bg);
-      border-color: var(--accent);
-      color: var(--accent-text);
-    }
-
-    .btn-primary:hover { opacity: 0.88; }
-
-    .btn-full {
-      width: 100%;
-      padding: 12px;
-      font-size: 15px;
-      text-align: center;
-    }
-
-    /* Hero */
-    .hero { padding: 0.5rem 0 2.5rem; }
-
-    .badge {
-      display: inline-block;
-      background: var(--accent-bg);
-      color: var(--accent-text);
-      font-size: 11px;
-      font-weight: 500;
-      padding: 3px 12px;
-      border-radius: 20px;
-      margin-bottom: 1rem;
-      letter-spacing: 0.03em;
-    }
-
-    h1 {
-      font-size: clamp(26px, 5vw, 40px);
-      font-weight: 500;
-      line-height: 1.15;
-      margin-bottom: 1rem;
-    }
-
-    .hero-sub {
-      font-size: 15px;
-      color: var(--text-secondary);
-      line-height: 1.75;
-      max-width: 500px;
-      margin-bottom: 2rem;
-    }
-
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      max-width: 380px;
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius);
+    /* ── HERO ── */
+    .hero {
+      background: var(--forest);
+      padding: 6rem 2rem 7rem;
+      position: relative;
       overflow: hidden;
     }
-
-    .stat { text-align: center; padding: 1rem 0.5rem; }
-    .stat + .stat { border-left: 0.5px solid var(--border); }
-    .stat-num { display: block; font-size: 22px; font-weight: 500; }
-    .stat-label { display: block; font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
-
-    /* Section */
-    .section {
-      padding: 2rem 0;
-      border-top: 0.5px solid var(--border);
+    .hero-dots {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.055) 1px, transparent 1px);
+      background-size: 28px 28px;
     }
-
-    .section-eyebrow {
-      font-size: 11px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-tertiary);
-      margin-bottom: 1.25rem;
+    .hero-glow {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 50% at 15% 60%, rgba(0,214,143,0.07) 0%, transparent 100%),
+        radial-gradient(ellipse 40% 40% at 85% 20%, rgba(0,214,143,0.05) 0%, transparent 100%);
     }
-
-    /* Form */
-    label.field-label {
+    .hero-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--mint-pale);
+      border: 0.5px solid rgba(0,214,143,0.22);
+      color: var(--mint);
+      font-size: 12px; font-weight: 500;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 2rem;
+      letter-spacing: 0.02em;
+      animation: fadeUp 0.5s ease both;
+    }
+    .badge-dot {
+      width: 6px; height: 6px;
+      background: var(--mint);
+      border-radius: 50%;
+      animation: blink 2.5s ease infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity:1; }
+      50% { opacity:0.3; }
+    }
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(40px, 6vw, 76px);
+      font-weight: 400;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: white;
+      margin-bottom: 1.5rem;
+      max-width: 680px;
+      animation: fadeUp 0.5s 0.08s ease both;
+    }
+    h1 em { font-style: italic; color: var(--mint); }
+    .hero-sub {
+      font-size: 17px; font-weight: 300;
+      color: var(--on-dark-text);
+      line-height: 1.78;
+      max-width: 460px;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.5s 0.16s ease both;
+    }
+    .hero-actions {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      margin-bottom: 4rem;
+      animation: fadeUp 0.5s 0.22s ease both;
+    }
+    .btn-hero {
+      padding: 14px 30px;
+      background: var(--mint); color: var(--forest);
+      border: none; border-radius: var(--radius);
+      font-size: 15px; font-weight: 500;
+      font-family: var(--font-body);
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-hero:hover { background: var(--mint-dim); }
+    .btn-hero:active { transform: scale(0.98); }
+    .hero-note { font-size: 13px; color: var(--on-dark-text); }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, auto);
+      width: fit-content;
+      border: 0.5px solid var(--on-dark-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      animation: fadeUp 0.5s 0.3s ease both;
+    }
+    .stat { padding: 1.25rem 2.25rem; text-align: center; }
+    .stat + .stat { border-left: 0.5px solid var(--on-dark-border); }
+    .stat-num {
       display: block;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 6px;
+      font-family: var(--font-display);
+      font-size: 30px; font-weight: 400;
+      color: white;
+      letter-spacing: -0.02em;
+    }
+    .stat-label { display: block; font-size: 12px; color: var(--on-dark-text); margin-top: 3px; }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(14px); }
+      to   { opacity:1; transform:translateY(0); }
     }
 
-    .field { margin-bottom: 1rem; }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 9px 12px;
-      font-size: 14px;
-      font-family: inherit;
-      background: var(--bg);
-      color: var(--text);
-      border: 0.5px solid var(--border-strong);
-      border-radius: var(--radius);
-      outline: none;
-      transition: border-color 0.15s;
+    /* ── TOOL SECTION ── */
+    .tool-section {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+    }
+    .section-label {
+      font-size: 11px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--ink-light);
+      margin-bottom: 0.4rem;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(26px, 4vw, 38px);
+      font-weight: 400; letter-spacing: -0.025em;
+      color: var(--ink);
+      margin-bottom: 2.5rem;
+      line-height: 1.15;
     }
 
-    input[type="text"]:focus { border-color: var(--accent); }
-    input[type="text"]::placeholder { color: var(--text-tertiary); }
-
+    /* Form card */
+    .form-card {
+      background: var(--white);
+      border: 0.5px solid var(--border-mid);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem;
+      box-shadow: 0 1px 3px rgba(15,26,19,0.04), 0 4px 24px rgba(15,26,19,0.06);
+    }
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
     }
-
-    .tone-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
+    .field { margin-bottom: 1.25rem; }
+    .field-label {
+      display: block;
+      font-size: 11px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--ink-light);
+      margin-bottom: 8px;
     }
-
-    .tone-btn {
-      padding: 7px 16px;
-      font-size: 13px;
-      font-family: inherit;
-      border: 0.5px solid var(--border-strong);
+    .field-input {
+      width: 100%;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-family: var(--font-body);
+      background: var(--cream);
+      color: var(--ink);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
-      background: transparent;
-      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .field-input:focus { border-color: var(--mint-dim); background: var(--white); }
+    .field-input::placeholder { color: var(--ink-xlight); }
+    .form-divider { height: 0.5px; background: var(--border); margin: 1.5rem 0; }
+
+    /* Tone pills */
+    .tone-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tone-pill {
+      padding: 7px 16px;
+      font-size: 13px; font-family: var(--font-body);
+      background: var(--cream); color: var(--ink-mid);
+      border: 1px solid var(--border);
+      border-radius: 30px;
       cursor: pointer;
       transition: all 0.15s;
     }
-
-    .tone-btn.active {
-      background: var(--bg-secondary);
-      border-color: var(--border-strong);
-      font-weight: 500;
+    .tone-pill:hover { border-color: var(--mint-dim); color: var(--ink); }
+    .tone-pill.active {
+      background: var(--forest); border-color: var(--forest);
+      color: white; font-weight: 500;
     }
 
-    /* Result */
-    .result-card {
-      background: var(--bg-secondary);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 1.25rem;
-      margin-top: 1.25rem;
-      display: none;
-    }
-
-    .result-label {
-      font-size: 11px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-tertiary);
-      margin-bottom: 6px;
-    }
-
-    .subject-box {
-      font-size: 14px;
-      font-weight: 500;
-      padding: 10px 12px;
-      background: var(--bg);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius);
-      margin-bottom: 1rem;
-      color: var(--text);
-    }
-
-    .body-text {
-      font-size: 14px;
-      line-height: 1.85;
-      color: var(--text);
-      white-space: pre-wrap;
-    }
-
-    .result-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 1rem;
-      padding-top: 1rem;
-      border-top: 0.5px solid var(--border);
-    }
-
-    .copy-btn {
-      font-size: 12px;
-      padding: 5px 14px;
-      border: 0.5px solid var(--border-strong);
-      border-radius: var(--radius);
-      background: transparent;
+    /* Generate btn */
+    .gen-btn {
+      width: 100%; padding: 14px;
+      font-size: 15px; font-weight: 500; font-family: var(--font-body);
+      background: var(--forest); color: white;
+      border: none; border-radius: var(--radius);
       cursor: pointer;
-      color: var(--text-secondary);
-      font-family: inherit;
-      transition: background 0.15s;
+      transition: background 0.15s, transform 0.1s;
+      letter-spacing: 0.01em;
     }
-
-    .copy-btn:hover { background: var(--bg-tertiary); }
+    .gen-btn:hover { background: var(--forest-light); }
+    .gen-btn:active { transform: scale(0.99); }
+    .gen-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
     /* Loading / Error */
-    .loading {
-      display: none;
-      align-items: center;
-      gap: 10px;
-      font-size: 13px;
-      color: var(--text-secondary);
-      padding: 1rem 0;
+    .loading-row {
+      display: none; align-items: center; gap: 12px;
+      padding: 1rem 0 0;
+      font-size: 13px; color: var(--ink-light);
     }
-
     .spinner {
-      width: 16px;
-      height: 16px;
-      border: 2px solid var(--border);
-      border-top-color: var(--text-secondary);
+      width: 16px; height: 16px;
+      border: 2px solid var(--border-mid);
+      border-top-color: var(--ink-mid);
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      animation: spin 0.75s linear infinite;
       flex-shrink: 0;
     }
-
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    .error-box {
+    .error-msg {
       display: none;
-      font-size: 13px;
-      color: var(--danger);
-      background: var(--danger-bg);
+      font-size: 13px; color: #7a1f1f;
+      background: #fdf0f0;
+      border: 0.5px solid rgba(122,31,31,0.18);
       border-radius: var(--radius);
-      padding: 0.75rem 1rem;
-      margin-top: 0.75rem;
+      padding: 10px 14px;
+      margin-top: 1rem;
     }
 
-    /* Testimonials */
+    /* Email result card */
+    .result-wrapper {
+      display: none;
+      margin-top: 2rem;
+      animation: fadeUp 0.4s ease both;
+    }
+    .result-eyebrow {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--ink-light);
+      margin-bottom: 1rem;
+    }
+    .result-eyebrow::before {
+      content: '';
+      width: 8px; height: 8px;
+      background: var(--mint); border-radius: 50%;
+    }
+    .email-card {
+      background: var(--white);
+      border: 0.5px solid var(--border-mid);
+      border-left: 3px solid var(--mint);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 4px 32px rgba(15,26,19,0.08);
+    }
+    .email-header {
+      background: var(--cream);
+      border-bottom: 0.5px solid var(--border);
+      padding: 1rem 1.5rem;
+    }
+    .email-field-row {
+      display: flex; align-items: baseline; gap: 10px;
+      margin-bottom: 6px; font-size: 13px;
+    }
+    .email-field-row:last-child { margin-bottom: 0; }
+    .email-field-key {
+      font-size: 11px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      color: var(--ink-light); min-width: 50px; flex-shrink: 0;
+    }
+    .email-field-val { color: var(--ink); font-size: 13px; }
+    #subject-display { font-weight: 500; }
+    .email-body {
+      padding: 1.75rem 1.5rem;
+      font-size: 14px; line-height: 1.9;
+      color: var(--ink-mid);
+      white-space: pre-wrap;
+    }
+    .email-actions {
+      border-top: 0.5px solid var(--border);
+      padding: 1rem 1.5rem;
+      display: flex; gap: 8px; flex-wrap: wrap;
+      background: var(--cream);
+    }
+    .action-btn {
+      padding: 7px 16px;
+      font-size: 12px; font-weight: 500; font-family: var(--font-body);
+      background: var(--white); color: var(--ink-mid);
+      border: 0.5px solid var(--border-mid);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .action-btn:hover { background: var(--forest); color: white; border-color: var(--forest); }
+
+    /* ── TESTIMONIALS ── */
+    .testimonials {
+      background: var(--forest);
+      padding: 5rem 2rem;
+    }
+    .testimonials-inner { max-width: 1100px; margin: 0 auto; }
+    .testimonials .section-label { color: rgba(255,255,255,0.28); }
+    .testimonials .section-title { color: white; margin-bottom: 2.5rem; }
     .testimonial-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
     }
-
-    .testimonial {
-      background: var(--bg-secondary);
+    .testimonial-card {
+      background: var(--forest-mid);
+      border: 0.5px solid var(--on-dark-border);
       border-radius: var(--radius-lg);
-      padding: 1rem;
+      padding: 1.5rem;
     }
-
-    .testimonial p {
-      font-size: 13px;
-      color: var(--text-secondary);
-      line-height: 1.7;
-      margin-bottom: 0.75rem;
+    .quote-mark {
+      font-family: var(--font-display);
+      font-size: 52px; line-height: 1;
+      color: var(--mint); opacity: 0.35;
+      margin-bottom: 0.25rem;
     }
-
-    .testimonial cite {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text);
-      font-style: normal;
+    .testimonial-text {
+      font-size: 14px; font-weight: 300;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.78;
+      margin-bottom: 1.25rem;
     }
+    .testimonial-author { font-size: 13px; font-weight: 500; color: white; }
+    .testimonial-role { font-size: 12px; color: rgba(255,255,255,0.32); margin-top: 2px; }
 
-    /* Pricing */
+    /* ── PRICING ── */
+    .pricing { max-width: 1100px; margin: 0 auto; padding: 5rem 2rem; }
     .pricing-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
     }
-
     .pricing-card {
-      background: var(--bg);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 1.25rem;
+      background: var(--white);
+      border: 0.5px solid var(--border-mid);
+      border-radius: var(--radius-xl);
+      padding: 2rem;
     }
-
     .pricing-card.featured {
-      border: 2px solid var(--info-border);
+      background: var(--forest);
+      border-color: var(--forest);
     }
-
-    .plan-name {
-      font-size: 12px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-secondary);
-      margin-bottom: 0.75rem;
+    .plan-label {
+      font-size: 11px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--ink-light);
+      margin-bottom: 1.25rem;
     }
-
-    .plan-header {
-      display: flex;
+    .pricing-card.featured .plan-label { color: rgba(255,255,255,0.35); }
+    .plan-top {
+      display: flex; align-items: flex-start;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.75rem;
+      margin-bottom: 1.25rem;
     }
-
-    .popular-badge {
-      background: var(--info-bg);
-      color: var(--info-text);
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 20px;
-      font-weight: 500;
+    .pop-tag {
+      background: var(--mint-pale); color: var(--mint);
+      font-size: 11px; font-weight: 500;
+      padding: 3px 10px; border-radius: 20px;
+      margin-top: 4px;
     }
-
-    .price { margin-bottom: 1rem; }
-    .price-num { font-size: 28px; font-weight: 500; }
-    .price-period { font-size: 13px; color: var(--text-secondary); }
-
-    .features { list-style: none; margin-bottom: 1rem; }
-
-    .features li {
-      font-size: 13px;
-      color: var(--text-secondary);
-      padding: 6px 0;
+    .plan-price-num {
+      font-family: var(--font-display);
+      font-size: 44px; font-weight: 400;
+      letter-spacing: -0.03em; color: var(--ink);
+      line-height: 1;
+    }
+    .pricing-card.featured .plan-price-num { color: white; }
+    .plan-price-period { font-size: 13px; color: var(--ink-light); display: block; margin-top: 4px; }
+    .pricing-card.featured .plan-price-period { color: rgba(255,255,255,0.35); }
+    .plan-features { list-style: none; margin: 1.5rem 0; }
+    .plan-features li {
+      font-size: 13px; color: var(--ink-mid);
+      padding: 7px 0;
       border-bottom: 0.5px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      display: flex; align-items: center; gap: 10px;
     }
+    .plan-features li:last-child { border-bottom: none; }
+    .pricing-card.featured .plan-features li {
+      color: rgba(255,255,255,0.6);
+      border-color: var(--on-dark-border);
+    }
+    .feat-check {
+      width: 18px; height: 18px;
+      background: var(--mint-pale);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .pricing-card.featured .feat-check { background: rgba(0,214,143,0.14); }
+    .plan-btn {
+      display: block; width: 100%; padding: 12px;
+      text-align: center;
+      font-size: 14px; font-weight: 500; font-family: var(--font-body);
+      border-radius: var(--radius); text-decoration: none;
+      cursor: pointer; transition: all 0.15s; border: none;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-mid);
+      color: var(--ink);
+    }
+    .btn-outline:hover { background: var(--cream-dark); }
+    .btn-mint { background: var(--mint); color: var(--forest); }
+    .btn-mint:hover { background: var(--mint-dim); }
+    .btn-white { background: white; color: var(--forest); }
+    .btn-white:hover { background: var(--cream); }
 
-    .features li:last-child { border-bottom: none; }
-
-    .check { color: var(--accent); font-size: 14px; flex-shrink: 0; }
-
-    /* Footer */
+    /* ── FOOTER ── */
     footer {
-      padding-top: 2rem;
-      border-top: 0.5px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
+      background: var(--forest);
+      border-top: 0.5px solid var(--on-dark-border);
+      padding: 2rem;
     }
+    .footer-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-logo {
+      font-family: var(--font-display);
+      font-size: 16px; font-weight: 400;
+      color: white; letter-spacing: -0.02em;
+    }
+    .footer-copy { font-size: 12px; color: rgba(255,255,255,0.25); }
 
-    footer span { font-size: 13px; color: var(--text-tertiary); }
-
-    @media (max-width: 480px) {
-      h1 { font-size: 26px; }
-      .stats-row { max-width: 100%; }
+    /* ── RESPONSIVE ── */
+    @media (max-width: 720px) {
       .pricing-grid { grid-template-columns: 1fr; }
+      .stats-grid { width: 100%; grid-template-columns: repeat(3,1fr); }
+      .stat { padding: 1rem 0.5rem; }
+      .stat-num { font-size: 24px; }
+    }
+    @media (max-width: 560px) {
+      h1 { font-size: 36px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-card { padding: 1.5rem; }
+      nav { padding: 0 1rem; }
+      .hero { padding: 4rem 1.25rem 5rem; }
+      .nav-links gap { gap: 0.75rem; }
     }
   </style>
 </head>
 <body>
-<div class="page">
 
-  <!-- Nav -->
-  <nav>
+<!-- SETUP BANNER -->
+<div id="setup-banner">
+  <span class="banner-label">⚙ Dev setup</span>
+  Enter your Anthropic API key to activate:
+  <input id="api-key-input" type="password" placeholder="sk-ant-api03-..." />
+  <button id="save-key-btn" onclick="saveKey()">Save</button>
+  <span id="key-status"></span>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
     <a class="logo" href="#">
-      <div class="logo-icon">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M3 8l3.5 3.5L13 5" stroke="#085041" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <div class="logo-mark">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M3.5 9.5l4 4 7-8" stroke="#0b1e13" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
-      PitchForge
+      <span class="logo-name">PitchForge</span>
     </a>
     <div class="nav-links">
-      <a class="nav-link" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
-      <button class="btn" onclick="document.getElementById('tool').scrollIntoView({behavior:'smooth'})">Try free</button>
+      <button class="nav-link" onclick="document.getElementById('pricing-section').scrollIntoView({behavior:'smooth'})">Pricing</button>
+      <button class="nav-link" onclick="document.getElementById('tool-section').scrollIntoView({behavior:'smooth'})">Try it</button>
+      <button class="nav-cta" onclick="document.getElementById('tool-section').scrollIntoView({behavior:'smooth'})">Generate free →</button>
     </div>
-  </nav>
+  </div>
+</nav>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="badge">Free to start — no card required</div>
-    <h1>Write cold emails that<br>actually get replies.</h1>
-    <p class="hero-sub">PitchForge uses AI to craft personalized outreach for sales reps, freelancers, and founders. Fill in your target and your offer — done in seconds.</p>
-    <div class="stats-row">
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-dots"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Free to start — no card required
+    </div>
+    <h1>Cold emails that<br>actually <em>get replies.</em></h1>
+    <p class="hero-sub">PitchForge writes personalized outreach for sales reps, freelancers, and founders in under 10 seconds. Fill in four fields. Done.</p>
+    <div class="hero-actions">
+      <button class="btn-hero" onclick="document.getElementById('tool-section').scrollIntoView({behavior:'smooth'})">Generate your first email</button>
+      <span class="hero-note">No signup required.</span>
+    </div>
+    <div class="stats-grid">
       <div class="stat">
         <span class="stat-num">47%</span>
         <span class="stat-label">avg open rate</span>
@@ -495,186 +638,271 @@
         <span class="stat-label">avg reply rate</span>
       </div>
       <div class="stat">
-        <span class="stat-num">8s</span>
+        <span class="stat-num">&lt;10s</span>
         <span class="stat-label">to generate</span>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Tool -->
-  <section class="section" id="tool">
-    <p class="section-eyebrow">Generate your email</p>
+<!-- TOOL -->
+<section class="tool-section" id="tool-section">
+  <p class="section-label">The tool</p>
+  <h2 class="section-title">Four inputs.<br>One great email.</h2>
 
+  <div class="form-card">
     <div class="form-grid">
       <div class="field">
         <label class="field-label" for="sender">Your name &amp; company</label>
-        <input type="text" id="sender" placeholder="e.g. Alex Chen, Acme Inc.">
+        <input class="field-input" type="text" id="sender" placeholder="e.g. Alex Chen, Acme Inc.">
       </div>
       <div class="field">
         <label class="field-label" for="target">Target person &amp; company</label>
-        <input type="text" id="target" placeholder="e.g. Sarah Lee, Stripe">
+        <input class="field-input" type="text" id="target" placeholder="e.g. Sarah Lee, Stripe">
       </div>
     </div>
 
     <div class="field">
-      <label class="field-label" for="offer">What you're offering (value prop)</label>
-      <input type="text" id="offer" placeholder="e.g. A tool that cuts your team's email writing time by 70%">
+      <label class="field-label" for="offer">What you're offering</label>
+      <input class="field-input" type="text" id="offer" placeholder="e.g. A tool that cuts your team's email writing time by 70%">
     </div>
 
-    <div class="field">
+    <div class="field" style="margin-bottom:0">
       <label class="field-label" for="cta">Desired outcome / CTA</label>
-      <input type="text" id="cta" placeholder="e.g. 15-min call this week">
+      <input class="field-input" type="text" id="cta" placeholder="e.g. 15-minute call this week">
     </div>
 
-    <div class="field">
+    <div class="form-divider"></div>
+
+    <div class="field" style="margin-bottom:0">
       <label class="field-label">Tone</label>
       <div class="tone-row">
-        <button class="tone-btn active" onclick="setTone(this,'professional')">Professional</button>
-        <button class="tone-btn" onclick="setTone(this,'friendly')">Friendly</button>
-        <button class="tone-btn" onclick="setTone(this,'bold')">Bold &amp; direct</button>
-        <button class="tone-btn" onclick="setTone(this,'concise')">Ultra-concise</button>
+        <button class="tone-pill active" onclick="setTone(this,'professional')">Professional</button>
+        <button class="tone-pill" onclick="setTone(this,'friendly')">Friendly</button>
+        <button class="tone-pill" onclick="setTone(this,'bold')">Bold &amp; direct</button>
+        <button class="tone-pill" onclick="setTone(this,'concise')">Ultra-concise</button>
       </div>
     </div>
 
-    <button class="btn btn-full" id="gen-btn" onclick="generateEmail()">Generate cold email →</button>
+    <div class="form-divider"></div>
 
-    <div class="loading" id="loading">
+    <button class="gen-btn" id="gen-btn" onclick="generateEmail()">Generate cold email →</button>
+
+    <div class="loading-row" id="loading">
       <div class="spinner"></div>
-      <span>Crafting your email...</span>
+      <span>Crafting your email…</span>
     </div>
 
-    <div class="error-box" id="error"></div>
+    <div class="error-msg" id="error"></div>
 
-    <div class="result-card" id="result">
-      <div class="result-label">Subject line</div>
-      <div class="subject-box" id="subject-out"></div>
-      <div class="result-label">Email body</div>
-      <div class="body-text" id="body-out"></div>
-      <div class="result-actions">
-        <button class="copy-btn" onclick="copyEmail()">Copy email</button>
-        <button class="copy-btn" onclick="generateEmail()">Regenerate</button>
+    <div class="result-wrapper" id="result">
+      <div class="result-eyebrow">Your email is ready</div>
+      <div class="email-card">
+        <div class="email-header">
+          <div class="email-field-row">
+            <span class="email-field-key">To</span>
+            <span class="email-field-val" id="to-display"></span>
+          </div>
+          <div class="email-field-row">
+            <span class="email-field-key">From</span>
+            <span class="email-field-val" id="from-display"></span>
+          </div>
+          <div class="email-field-row">
+            <span class="email-field-key">Subject</span>
+            <span class="email-field-val" id="subject-display"></span>
+          </div>
+        </div>
+        <div class="email-body" id="body-display"></div>
+        <div class="email-actions">
+          <button class="action-btn" onclick="copyEmail(event)">Copy email</button>
+          <button class="action-btn" onclick="generateEmail()">Regenerate</button>
+        </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Testimonials -->
-  <section class="section">
-    <p class="section-eyebrow">What users say</p>
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="testimonials-inner">
+    <p class="section-label">What users say</p>
+    <h2 class="section-title">Reps who swear by it.</h2>
     <div class="testimonial-grid">
-      <div class="testimonial">
-        <p>"Booked 3 calls in my first week. The emails actually sound like me, not a robot."</p>
-        <cite>Marcus D. — Freelance designer</cite>
+      <div class="testimonial-card">
+        <div class="quote-mark">"</div>
+        <p class="testimonial-text">Booked 3 calls in my first week. The emails actually sound like me, not a robot. I've tried every tool out there — this is the only one I kept.</p>
+        <p class="testimonial-author">Marcus D.</p>
+        <p class="testimonial-role">Freelance designer, New York</p>
       </div>
-      <div class="testimonial">
-        <p>"I was spending 45 min per email. Now it's 45 seconds. Team is obsessed."</p>
-        <cite>Priya M. — SDR, Series B startup</cite>
+      <div class="testimonial-card">
+        <div class="quote-mark">"</div>
+        <p class="testimonial-text">I was spending 45 minutes crafting each cold email. Now it's 45 seconds. My whole SDR team is obsessed — we canceled three other subscriptions.</p>
+        <p class="testimonial-author">Priya M.</p>
+        <p class="testimonial-role">SDR, Series B startup</p>
       </div>
-      <div class="testimonial">
-        <p>"PitchForge closed our biggest client last quarter. Not kidding."</p>
-        <cite>James T. — Founder, B2B SaaS</cite>
+      <div class="testimonial-card">
+        <div class="quote-mark">"</div>
+        <p class="testimonial-text">PitchForge helped us close our biggest client last quarter. The email it wrote was sharper than anything our team would have written ourselves.</p>
+        <p class="testimonial-author">James T.</p>
+        <p class="testimonial-role">Founder, B2B SaaS</p>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Pricing -->
-  <section class="section" id="pricing">
-    <p class="section-eyebrow">Pricing</p>
-    <div class="pricing-grid">
+<!-- PRICING -->
+<section class="pricing" id="pricing-section">
+  <p class="section-label">Pricing</p>
+  <h2 class="section-title">Start free. Scale when ready.</h2>
+  <div class="pricing-grid">
 
-      <div class="pricing-card">
-        <p class="plan-name">Free</p>
-        <div class="price">
-          <span class="price-num">$0</span>
-          <span class="price-period"> / month</span>
-        </div>
-        <ul class="features">
-          <li><span class="check">✓</span>5 emails per month</li>
-          <li><span class="check">✓</span>All 4 tone modes</li>
-          <li><span class="check">✓</span>Copy &amp; export</li>
-        </ul>
-        <button class="btn btn-full" onclick="document.getElementById('tool').scrollIntoView({behavior:'smooth'})">Get started</button>
-      </div>
-
-      <div class="pricing-card featured">
-        <div class="plan-header">
-          <p class="plan-name" style="margin:0">Pro</p>
-          <span class="popular-badge">Most popular</span>
-        </div>
-        <div class="price">
-          <span class="price-num">$19</span>
-          <span class="price-period"> / month</span>
-        </div>
-        <ul class="features">
-          <li><span class="check">✓</span>Unlimited emails</li>
-          <li><span class="check">✓</span>A/B subject line variants</li>
-          <li><span class="check">✓</span>3-email follow-up sequences</li>
-          <li><span class="check">✓</span>Email history &amp; templates</li>
-        </ul>
-        <!-- Replace YOUR_STRIPE_PRO_LINK with your Stripe payment link -->
-        <a class="btn btn-primary btn-full" href="YOUR_STRIPE_PRO_LINK" target="_blank">Upgrade to Pro</a>
-      </div>
-
-      <div class="pricing-card">
-        <p class="plan-name">Team</p>
-        <div class="price">
-          <span class="price-num">$79</span>
-          <span class="price-period"> / month</span>
-        </div>
-        <ul class="features">
-          <li><span class="check">✓</span>Everything in Pro</li>
-          <li><span class="check">✓</span>Up to 10 seats</li>
-          <li><span class="check">✓</span>Shared template library</li>
-          <li><span class="check">✓</span>CRM integrations</li>
-        </ul>
-        <!-- Replace YOUR_STRIPE_TEAM_LINK with your Stripe payment link -->
-        <a class="btn btn-full" href="YOUR_STRIPE_TEAM_LINK" target="_blank">Contact sales</a>
-      </div>
-
+    <div class="pricing-card">
+      <p class="plan-label">Free</p>
+      <div class="plan-price-num">$0</div>
+      <div class="plan-price-period">/ month</div>
+      <ul class="plan-features">
+        <li>
+          <span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00b578" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          5 emails per month
+        </li>
+        <li>
+          <span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00b578" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          All 4 tone modes
+        </li>
+        <li>
+          <span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00b578" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          Copy &amp; export
+        </li>
+      </ul>
+      <button class="plan-btn btn-outline" onclick="document.getElementById('tool-section').scrollIntoView({behavior:'smooth'})">Get started free</button>
     </div>
-  </section>
 
-  <!-- Footer -->
-  <footer>
-    <span style="font-weight:500; color: var(--text);">PitchForge</span>
-    <span>Built with Claude &middot; &copy; 2026</span>
-  </footer>
+    <div class="pricing-card featured">
+      <p class="plan-label">Pro</p>
+      <div class="plan-top">
+        <div>
+          <div class="plan-price-num">$19</div>
+          <div class="plan-price-period">/ month</div>
+        </div>
+        <span class="pop-tag">Most popular</span>
+      </div>
+      <ul class="plan-features">
+        <li>
+          <span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00d68f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          Unlimited emails
+        </li>
+        <li>
+          <span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00d68f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          A/B subject line variants
+        </li>
+        <li>
+          <span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00d68f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          3-email follow-up sequences
+        </li>
+        <li>
+          <span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00d68f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          Email history &amp; templates
+        </li>
+      </ul>
+      <!-- Replace YOUR_STRIPE_PRO_LINK -->
+      <a class="plan-btn btn-mint" href="YOUR_STRIPE_PRO_LINK" target="_blank">Upgrade to Pro</a>
+    </div>
 
-</div>
+    <div class="pricing-card">
+      <p class="plan-label">Team</p>
+      <div class="plan-price-num">$79</div>
+      <div class="plan-price-period">/ month</div>
+      <ul class="plan-features">
+        <li>
+          <span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00b578" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          Everything in Pro
+        </li>
+        <li>
+          <span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00b578" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          Up to 10 seats
+        </li>
+        <li>
+          <span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00b578" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          Shared template library
+        </li>
+        <li>
+          <span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00b578" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          CRM integrations
+        </li>
+      </ul>
+      <!-- Replace YOUR_STRIPE_TEAM_LINK -->
+      <a class="plan-btn btn-outline" href="YOUR_STRIPE_TEAM_LINK" target="_blank">Contact sales</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <span class="footer-logo">PitchForge</span>
+    <span class="footer-copy">Built with Claude &middot; © 2026 &middot; All rights reserved</span>
+  </div>
+</footer>
 
 <script>
-  let selectedTone = 'professional';
+  /* API KEY */
+  let apiKey = localStorage.getItem('pf_api_key') || '';
+  if (apiKey) document.getElementById('setup-banner').style.display = 'none';
 
+  function saveKey() {
+    const val = document.getElementById('api-key-input').value.trim();
+    if (!val.startsWith('sk-ant')) {
+      const s = document.getElementById('key-status');
+      s.textContent = '✗ Invalid format'; s.style.color = '#ff6b6b'; return;
+    }
+    apiKey = val;
+    localStorage.setItem('pf_api_key', val);
+    const s = document.getElementById('key-status');
+    s.textContent = '✓ Saved'; s.style.color = '#00d68f';
+    document.getElementById('api-key-input').value = '●'.repeat(18);
+    setTimeout(() => document.getElementById('setup-banner').style.display = 'none', 1000);
+  }
+
+  /* TONE */
+  let selectedTone = 'professional';
   function setTone(btn, tone) {
-    document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tone-pill').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     selectedTone = tone;
   }
 
+  /* GENERATE */
   async function generateEmail() {
     const sender = document.getElementById('sender').value.trim();
     const target = document.getElementById('target').value.trim();
     const offer  = document.getElementById('offer').value.trim();
     const cta    = document.getElementById('cta').value.trim();
-    const errorEl  = document.getElementById('error');
+    const errorEl   = document.getElementById('error');
     const loadingEl = document.getElementById('loading');
     const resultEl  = document.getElementById('result');
     const genBtn    = document.getElementById('gen-btn');
 
+    errorEl.style.display = 'none';
+
     if (!sender || !target || !offer || !cta) {
       errorEl.textContent = 'Please fill in all four fields before generating.';
+      errorEl.style.display = 'block'; return;
+    }
+    if (!apiKey) {
+      errorEl.textContent = 'Please enter your Anthropic API key in the setup banner above.';
       errorEl.style.display = 'block';
-      setTimeout(() => errorEl.style.display = 'none', 3500);
-      return;
+      window.scrollTo({ top: 0, behavior: 'smooth' }); return;
     }
 
     const toneMap = {
-      professional: 'professional and polished, suited for B2B outreach',
-      friendly: 'warm and conversational, like emailing through a mutual contact',
-      bold: 'bold, direct, and confident — no fluff, straight to the point',
-      concise: 'ultra-concise (under 80 words total including subject), every word earns its place'
+      professional: 'professional and polished, appropriate for senior B2B stakeholders',
+      friendly:     'warm and conversational, like reaching out through a mutual connection',
+      bold:         'bold, direct, and confident — zero fluff, straight to the value',
+      concise:      'ultra-concise (under 75 words total body), every single word earns its place'
     };
 
-    const prompt = `You are an expert cold email copywriter. Write a cold outreach email with these details:
+    const prompt = `You are a world-class cold email copywriter. Write a cold outreach email:
 
 Sender: ${sender}
 Target: ${target}
@@ -682,29 +910,22 @@ Value proposition: ${offer}
 Desired CTA: ${cta}
 Tone: ${toneMap[selectedTone]}
 
-Respond ONLY with valid JSON in this exact format (no markdown, no preamble, no trailing text):
-{
-  "subject": "the subject line here",
-  "body": "the full email body here, using \\n for line breaks"
-}
+Respond ONLY with valid JSON, no markdown, no preamble:
+{"subject":"subject line here","body":"email body here, use \\n for line breaks"}
 
-Guidelines:
-- Subject line: intriguing, under 8 words, no clickbait
-- Opening: reference something specific about the target (infer from their role/company name)
-- Body: 3-4 short paragraphs max, no buzzwords, no "I hope this email finds you well"
-- Close: clear, single CTA aligned with the desired outcome
-- Sign-off: appropriate for the tone, signed by the sender name`;
+Rules: subject under 8 words, no cliche openers, open with something specific inferred from their company/role, max 3 short paragraphs, one clear CTA, natural sign-off using sender's first name.`;
 
     genBtn.disabled = true;
     loadingEl.style.display = 'flex';
     resultEl.style.display = 'none';
-    errorEl.style.display = 'none';
 
     try {
       const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
           'anthropic-dangerous-direct-browser-access': 'true'
         },
         body: JSON.stringify({
@@ -715,21 +936,24 @@ Guidelines:
       });
 
       if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData?.error?.message || `API error ${res.status}`);
+        const e = await res.json().catch(() => ({}));
+        throw new Error(e?.error?.message || `API error ${res.status}`);
       }
 
       const data = await res.json();
-      const rawText = data.content?.find(b => b.type === 'text')?.text || '';
-      const clean = rawText.replace(/```json|```/g, '').trim();
-      const parsed = JSON.parse(clean);
+      const raw = data.content?.find(b => b.type === 'text')?.text || '';
+      const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
 
-      document.getElementById('subject-out').textContent = parsed.subject;
-      document.getElementById('body-out').textContent = parsed.body;
+      document.getElementById('to-display').textContent      = target;
+      document.getElementById('from-display').textContent    = sender;
+      document.getElementById('subject-display').textContent = parsed.subject;
+      document.getElementById('body-display').textContent    = parsed.body;
+
       resultEl.style.display = 'block';
-      resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      setTimeout(() => resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+
     } catch (e) {
-      errorEl.textContent = 'Something went wrong: ' + (e.message || 'Please try again.');
+      errorEl.textContent = 'Error: ' + (e.message || 'please try again.');
       errorEl.style.display = 'block';
     } finally {
       genBtn.disabled = false;
@@ -737,21 +961,17 @@ Guidelines:
     }
   }
 
-  function copyEmail() {
-    const subject = document.getElementById('subject-out').textContent;
-    const body    = document.getElementById('body-out').textContent;
-    const full    = `Subject: ${subject}\n\n${body}`;
-    navigator.clipboard.writeText(full).then(() => {
-      const btn = event.target;
-      const orig = btn.textContent;
+  function copyEmail(evt) {
+    const subject = document.getElementById('subject-display').textContent;
+    const body    = document.getElementById('body-display').textContent;
+    navigator.clipboard.writeText(`Subject: ${subject}\n\n${body}`).then(() => {
+      const btn = evt.target;
       btn.textContent = 'Copied!';
-      setTimeout(() => btn.textContent = orig, 1800);
-    }).catch(() => {
-      alert('Copy failed — please select and copy the text manually.');
+      setTimeout(() => btn.textContent = 'Copy email', 1800);
     });
   }
 
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') generateEmail();
   });
 </script>
