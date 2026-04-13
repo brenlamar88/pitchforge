@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to PitchForge Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --forest: #0b1e13;
+      --mint: #00d68f;
+      --mint-pale: rgba(0,214,143,0.12);
+      --cream: #f9f7f1;
+      --ink: #0f1a13;
+      --ink-light: #7a8f80;
+      --border: rgba(15,26,19,0.10);
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+    }
+    body {
+      font-family: var(--font-body);
+      background: var(--forest);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      -webkit-font-smoothing: antialiased;
+    }
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 0.5px solid rgba(255,255,255,0.10);
+      border-radius: 24px;
+      padding: 3rem 2.5rem;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      animation: up 0.5s ease both;
+    }
+    @keyframes up {
+      from { opacity:0; transform:translateY(16px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .check-circle {
+      width: 64px; height: 64px;
+      background: var(--mint-pale);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
+    h1 {
+      font-family: var(--font-display);
+      font-size: 36px; font-weight: 400;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.75rem;
+      line-height: 1.1;
+    }
+    h1 em { font-style: italic; color: var(--mint); }
+    p {
+      font-size: 15px; font-weight: 300;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.75;
+      margin-bottom: 2rem;
+    }
+    .plan-tag {
+      display: inline-block;
+      background: var(--mint-pale);
+      border: 0.5px solid rgba(0,214,143,0.22);
+      color: var(--mint);
+      font-size: 12px; font-weight: 500;
+      padding: 4px 14px; border-radius: 20px;
+      margin-bottom: 2rem;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .btn {
+      display: inline-block;
+      padding: 13px 32px;
+      background: var(--mint); color: var(--forest);
+      border: none; border-radius: 10px;
+      font-size: 15px; font-weight: 500;
+      font-family: var(--font-body);
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.88; }
+    .logo {
+      font-family: var(--font-display);
+      font-size: 15px; font-weight: 400;
+      color: rgba(255,255,255,0.35);
+      margin-top: 2rem;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="check-circle">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <path d="M5 14l7 7 11-11" stroke="#00d68f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="plan-tag" id="plan-tag">Pro plan</div>
+    <h1>You're in.<br><em>Let's get pitching.</em></h1>
+    <p>Your subscription is active. Head back and start generating cold emails that actually get replies — unlimited, on demand.</p>
+    <a class="btn" href="/">Start generating →</a>
+    <span class="logo">PitchForge</span>
+  </div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const plan = params.get('plan');
+    if (plan === 'team') {
+      document.getElementById('plan-tag').textContent = 'Team plan';
+    }
+  </script>
+</body>
+</html>
