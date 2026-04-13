@@ -1,60 +1,62 @@
 import Stripe from 'stripe';
+import { createClient } from '@supabase/supabase-js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe   = new Stripe(process.env.STRIPE_SECRET_KEY);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-const PLANS = {
-  pro: {
-    name:        'PitchForge Pro',
-    description: 'Unlimited emails, A/B variants, follow-up sequences',
-    amount:      1900, // $19.00 in cents
-  },
-  team: {
-    name:        'PitchForge Team',
-    description: 'Everything in Pro, up to 10 seats, CRM integrations',
-    amount:      7900, // $79.00 in cents
-  },
+const PRICES = {
+  pro:  'price_1TLrWrHqCn6sHMD7T1VZIF34',
+  team: 'price_1TLrWvHqCn6sHMD7Bu4FQ7aH',
 };
 
 export default async function handler(req, res) {
-  if (req.method !== 'GET' && req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method !== 'GET') return res.status(405).end();
 
-  const plan = (req.query.plan || '').toLowerCase();
+  const plan = (req.query.plan || 'pro').toLowerCase();
+  if (!PRICES[plan]) return res.status(400).json({ error: 'Invalid plan' });
 
-  if (!PLANS[plan]) {
-    return res.status(400).json({ error: 'Invalid plan. Use ?plan=pro or ?plan=team' });
-  }
+  // Get auth token from query param (passed from dashboard)
+  const token = req.query.token;
+  if (!token) return res.redirect(302, '/login.html?redirect=upgrade');
 
-  const { name, description, amount } = PLANS[plan];
-  const baseUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+  if (error || !user) return res.redirect(302, '/login.html?redirect=upgrade');
+
+  const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://pitchforge.co';
 
   try {
+    // Get or create Stripe customer
+    const { data: profile } = await supabase
+      .from('pf_profiles')
+      .select('stripe_customer_id, email')
+      .eq('id', user.id)
+      .single();
+
+    let customerId = profile?.stripe_customer_id;
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email:    user.email,
+        metadata: { supabase_user_id: user.id },
+      });
+      customerId = customer.id;
+    }
+
     const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
+      mode:                 'subscription',
+      customer:             customerId,
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency:   'usd',
-            product_data: { name, description },
-            unit_amount: amount,
-            recurring:  { interval: 'month' },
-          },
-          quantity: 1,
-        },
-      ],
-      success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}&plan=${plan}`,
-      cancel_url:  `${baseUrl}/#pricing-section`,
-      allow_promotion_codes: true,
+      line_items: [{ price: PRICES[plan], quantity: 1 }],
+      metadata:   { user_id: user.id, plan },
+      allow_promotion_codes:      true,
       billing_address_collection: 'auto',
+      success_url: `${baseUrl}/success/?plan=${plan}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:  `${baseUrl}/dashboard.html#upgrade`,
     });
 
-    // Redirect straight to Stripe checkout
     return res.redirect(303, session.url);
 
   } catch (e) {
-    console.error('Stripe error:', e);
-    return res.status(500).json({ error: e.message || 'Could not create checkout session.' });
+    console.error('Checkout error:', e);
+    return res.status(500).json({ error: e.message });
   }
 }

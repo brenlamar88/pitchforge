@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PitchForge — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --forest:#0b1e13;--forest-mid:#142b1d;--forest-light:#1d3d28;
+      --mint:#00d68f;--mint-dim:#00b578;--mint-pale:rgba(0,214,143,0.12);
+      --cream:#f9f7f1;--cream-dark:#f0ede5;--white:#fff;
+      --ink:#0f1a13;--ink-mid:#3a4e3f;--ink-light:#7a8f80;--ink-xlight:#b0c0b5;
+      --border:rgba(15,26,19,0.10);--border-mid:rgba(15,26,19,0.18);
+      --on-dark:rgba(255,255,255,0.50);--on-dark-border:rgba(255,255,255,0.10);
+      --radius:10px;--radius-lg:16px;--radius-xl:24px;
+      --fd:'Fraunces',Georgia,serif;--fb:'DM Sans',system-ui,sans-serif;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:var(--fb);background:var(--cream);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
+    /* Loading screen */
+    #loading-screen{position:fixed;inset:0;background:var(--forest);display:flex;align-items:center;justify-content:center;z-index:999;transition:opacity 0.3s}
+    .loading-logo{font-family:var(--fd);font-size:24px;color:white;letter-spacing:-0.02em;animation:pulse-o 1.5s ease infinite}
+    @keyframes pulse-o{0%,100%{opacity:1}50%{opacity:0.4}}
+    /* Nav */
+    nav{background:var(--forest);border-bottom:0.5px solid var(--on-dark-border);padding:0 2rem;position:sticky;top:0;z-index:100}
+    .nav-inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;height:60px}
+    .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+    .logo-mark{width:30px;height:30px;background:var(--mint);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .logo-name{font-family:var(--fd);font-size:17px;font-weight:500;color:white;letter-spacing:-0.02em}
+    .nav-right{display:flex;align-items:center;gap:1rem}
+    .nav-user{font-size:13px;color:var(--on-dark)}
+    .plan-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px}
+    .plan-free{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5)}
+    .plan-pro{background:var(--mint-pale);color:var(--mint)}
+    .plan-team{background:rgba(100,180,255,0.12);color:#85b7eb}
+    .sign-out-btn{font-size:13px;color:var(--on-dark);background:none;border:none;font-family:var(--fb);cursor:pointer;transition:color 0.15s}
+    .sign-out-btn:hover{color:white}
+    /* Layout */
+    .layout{max-width:1200px;margin:0 auto;padding:2rem;display:grid;grid-template-columns:1fr 380px;gap:2rem;align-items:start}
+    @media(max-width:900px){.layout{grid-template-columns:1fr}}
+    /* Section headers */
+    .section-eyebrow{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light);margin-bottom:0.4rem}
+    .section-title{font-family:var(--fd);font-size:26px;font-weight:400;letter-spacing:-0.025em;color:var(--ink);margin-bottom:1.5rem;line-height:1.15}
+    /* Card */
+    .card{background:var(--white);border:0.5px solid var(--border-mid);border-radius:var(--radius-xl);padding:2rem;margin-bottom:1.5rem;box-shadow:0 1px 3px rgba(15,26,19,0.04),0 4px 20px rgba(15,26,19,0.05)}
+    /* Form */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.875rem}
+    .field{margin-bottom:1rem}
+    .field-label{display:block;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-light);margin-bottom:7px}
+    .field-input{width:100%;padding:10px 13px;font-size:14px;font-family:var(--fb);background:var(--cream);color:var(--ink);border:1px solid var(--border);border-radius:var(--radius);outline:none;transition:border-color 0.15s,background 0.15s}
+    .field-input:focus{border-color:var(--mint-dim);background:var(--white)}
+    .field-input::placeholder{color:var(--ink-xlight)}
+    .form-divider{height:0.5px;background:var(--border);margin:1.25rem 0}
+    .tone-row{display:flex;gap:7px;flex-wrap:wrap}
+    .tone-pill{padding:6px 14px;font-size:13px;font-family:var(--fb);background:var(--cream);color:var(--ink-mid);border:1px solid var(--border);border-radius:30px;cursor:pointer;transition:all 0.15s}
+    .tone-pill:hover{border-color:var(--mint-dim)}
+    .tone-pill.active{background:var(--forest);border-color:var(--forest);color:white;font-weight:500}
+    .gen-btn{width:100%;padding:13px;font-size:15px;font-weight:500;font-family:var(--fb);background:var(--forest);color:white;border:none;border-radius:var(--radius);cursor:pointer;transition:background 0.15s;letter-spacing:0.01em}
+    .gen-btn:hover{background:var(--forest-light)}
+    .gen-btn:disabled{opacity:0.4;cursor:not-allowed}
+    .loading-row{display:none;align-items:center;gap:10px;padding:1rem 0 0;font-size:13px;color:var(--ink-light)}
+    .spinner{width:15px;height:15px;border:2px solid var(--border-mid);border-top-color:var(--ink-mid);border-radius:50%;animation:spin 0.75s linear infinite;flex-shrink:0}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .error-msg{display:none;font-size:13px;color:#7a1f1f;background:#fdf0f0;border:0.5px solid rgba(122,31,31,0.18);border-radius:var(--radius);padding:10px 13px;margin-top:0.875rem}
+    /* Email result */
+    .result-wrapper{display:none;margin-top:1.5rem;animation:up 0.35s ease both}
+    @keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .result-eyebrow{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light);margin-bottom:0.875rem}
+    .result-eyebrow::before{content:'';width:7px;height:7px;background:var(--mint);border-radius:50%}
+    .email-card{background:var(--white);border:0.5px solid var(--border-mid);border-left:3px solid var(--mint);border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 3px 20px rgba(15,26,19,0.07)}
+    .email-header{background:var(--cream);border-bottom:0.5px solid var(--border);padding:0.875rem 1.25rem}
+    .email-row{display:flex;align-items:baseline;gap:10px;margin-bottom:5px;font-size:13px}
+    .email-row:last-child{margin-bottom:0}
+    .email-key{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-light);min-width:48px;flex-shrink:0}
+    .email-val{color:var(--ink);font-size:13px}
+    #subject-display{font-weight:500}
+    .email-body{padding:1.5rem 1.25rem;font-size:14px;line-height:1.9;color:var(--ink-mid);white-space:pre-wrap}
+    .email-actions{border-top:0.5px solid var(--border);padding:0.875rem 1.25rem;display:flex;gap:7px;flex-wrap:wrap;background:var(--cream)}
+    .action-btn{padding:6px 14px;font-size:12px;font-weight:500;font-family:var(--fb);background:var(--white);color:var(--ink-mid);border:0.5px solid var(--border-mid);border-radius:var(--radius);cursor:pointer;transition:all 0.15s;text-decoration:none}
+    .action-btn:hover{background:var(--forest);color:white;border-color:var(--forest)}
+    /* Right sidebar */
+    .sidebar-card{background:var(--white);border:0.5px solid var(--border-mid);border-radius:var(--radius-xl);padding:1.5rem;margin-bottom:1.25rem;box-shadow:0 1px 3px rgba(15,26,19,0.04),0 4px 20px rgba(15,26,19,0.05)}
+    /* Usage meter */
+    .usage-label{font-size:12px;color:var(--ink-light);margin-bottom:0.5rem;display:flex;justify-content:space-between;align-items:center}
+    .usage-num{font-size:13px;font-weight:500;color:var(--ink)}
+    .usage-bar-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:0.625rem}
+    .usage-bar-fill{height:100%;background:var(--mint);border-radius:3px;transition:width 0.4s ease}
+    .usage-bar-fill.warning{background:#e8a020}
+    .usage-bar-fill.danger{background:#c0392b}
+    .upgrade-btn{display:block;width:100%;padding:10px;text-align:center;font-size:13px;font-weight:500;font-family:var(--fb);background:var(--mint);color:var(--forest);border:none;border-radius:var(--radius);cursor:pointer;transition:background 0.15s;text-decoration:none;margin-top:0.875rem}
+    .upgrade-btn:hover{background:var(--mint-dim)}
+    /* History */
+    .history-list{display:flex;flex-direction:column;gap:0.75rem}
+    .history-item{background:var(--cream);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem;cursor:pointer;transition:border-color 0.15s;position:relative}
+    .history-item:hover{border-color:var(--mint-dim)}
+    .history-target{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:3px}
+    .history-subject{font-size:12px;color:var(--ink-mid);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .history-date{font-size:11px;color:var(--ink-xlight)}
+    .history-delete{position:absolute;top:10px;right:10px;width:22px;height:22px;background:none;border:0.5px solid var(--border);border-radius:50%;cursor:pointer;font-size:12px;color:var(--ink-light);display:flex;align-items:center;justify-content:center;transition:all 0.15s;opacity:0}
+    .history-item:hover .history-delete{opacity:1}
+    .history-delete:hover{background:#fdf0f0;border-color:rgba(122,31,31,0.3);color:#7a1f1f}
+    .empty-history{text-align:center;padding:2rem 1rem;color:var(--ink-light);font-size:13px}
+    .empty-icon{font-size:28px;margin-bottom:0.5rem;opacity:0.3}
+    /* Account card */
+    .account-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:13px}
+    .account-row:last-child{border-bottom:none}
+    .account-key{color:var(--ink-light)}
+    .account-val{color:var(--ink);font-weight:500}
+    /* Responsive */
+    @media(max-width:560px){.form-grid{grid-template-columns:1fr}.card{padding:1.25rem}}
+  </style>
+</head>
+<body>
+
+<div id="loading-screen"><span class="loading-logo">PitchForge</span></div>
+
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="/dashboard.html">
+      <div class="logo-mark"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M3.5 9.5l4 4 7-8" stroke="#0b1e13" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="logo-name">PitchForge</span>
+    </a>
+    <div class="nav-right">
+      <span class="nav-user" id="nav-email"></span>
+      <span class="plan-badge plan-free" id="nav-plan">Free</span>
+      <button class="sign-out-btn" onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+  <!-- LEFT: Generate -->
+  <div>
+    <div class="card">
+      <p class="section-eyebrow">Generate</p>
+      <h2 class="section-title">Write your cold email.</h2>
+
+      <div class="form-grid">
+        <div class="field">
+          <label class="field-label" for="sender">Your name &amp; company</label>
+          <input class="field-input" type="text" id="sender" placeholder="e.g. Alex Chen, Acme Inc.">
+        </div>
+        <div class="field">
+          <label class="field-label" for="target">Target person &amp; company</label>
+          <input class="field-input" type="text" id="target" placeholder="e.g. Sarah Lee, Stripe">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="offer">What you're offering</label>
+        <input class="field-input" type="text" id="offer" placeholder="e.g. A tool that cuts email writing time by 70%">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label class="field-label" for="cta">Desired outcome / CTA</label>
+        <input class="field-input" type="text" id="cta" placeholder="e.g. 15-minute call this week">
+      </div>
+      <div class="form-divider"></div>
+      <div class="field" style="margin-bottom:0">
+        <label class="field-label">Tone</label>
+        <div class="tone-row">
+          <button class="tone-pill active" onclick="setTone(this,'professional')">Professional</button>
+          <button class="tone-pill" onclick="setTone(this,'friendly')">Friendly</button>
+          <button class="tone-pill" onclick="setTone(this,'bold')">Bold &amp; direct</button>
+          <button class="tone-pill" onclick="setTone(this,'concise')">Ultra-concise</button>
+        </div>
+      </div>
+      <div class="form-divider"></div>
+      <button class="gen-btn" id="gen-btn" onclick="generateEmail()">Generate cold email →</button>
+      <div class="loading-row" id="loading"><div class="spinner"></div><span>Crafting your email…</span></div>
+      <div class="error-msg" id="error"></div>
+
+      <div class="result-wrapper" id="result">
+        <div class="result-eyebrow">Your email is ready</div>
+        <div class="email-card">
+          <div class="email-header">
+            <div class="email-row"><span class="email-key">To</span><span class="email-val" id="to-disp"></span></div>
+            <div class="email-row"><span class="email-key">From</span><span class="email-val" id="from-disp"></span></div>
+            <div class="email-row"><span class="email-key">Subject</span><span class="email-val" id="subject-display"></span></div>
+          </div>
+          <div class="email-body" id="body-display"></div>
+          <div class="email-actions">
+            <button class="action-btn" onclick="copyEmail(event)">Copy email</button>
+            <button class="action-btn" onclick="generateEmail()">Regenerate</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="card" id="history-card">
+      <p class="section-eyebrow">History</p>
+      <h2 class="section-title" style="margin-bottom:1.25rem">Past emails.</h2>
+      <div class="history-list" id="history-list">
+        <div class="empty-history">
+          <div class="empty-icon">✉</div>
+          <p>No emails yet. Generate your first one above.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Sidebar -->
+  <div>
+    <!-- Usage -->
+    <div class="sidebar-card" id="usage-card">
+      <p class="section-eyebrow" style="margin-bottom:1rem">Usage</p>
+      <div class="usage-label">
+        <span>Emails this month</span>
+        <span class="usage-num" id="usage-num">0 / 5</span>
+      </div>
+      <div class="usage-bar-track"><div class="usage-bar-fill" id="usage-fill" style="width:0%"></div></div>
+      <p style="font-size:12px;color:var(--ink-light)" id="usage-sub">5 free emails per month. Resets monthly.</p>
+      <a class="upgrade-btn" id="upgrade-btn" href="#" onclick="goToCheckout(event,'pro')">Upgrade to Pro — $19/mo →</a>
+    </div>
+
+    <!-- Account -->
+    <div class="sidebar-card">
+      <p class="section-eyebrow" style="margin-bottom:1rem">Account</p>
+      <div class="account-row"><span class="account-key">Email</span><span class="account-val" id="acct-email" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span></div>
+      <div class="account-row"><span class="account-key">Plan</span><span class="account-val" id="acct-plan">Free</span></div>
+      <div class="account-row"><span class="account-key">Member since</span><span class="account-val" id="acct-since"></span></div>
+      <div class="account-row"><span class="account-key">Usage resets</span><span class="account-val" id="acct-reset"></span></div>
+    </div>
+
+    <!-- Upgrade card (hidden for pro/team) -->
+    <div class="sidebar-card" id="upgrade-card" style="background:var(--forest);border-color:var(--forest)">
+      <p style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.35);margin-bottom:0.75rem">Go unlimited</p>
+      <p style="font-family:var(--fd);font-size:22px;font-weight:400;color:white;letter-spacing:-0.02em;margin-bottom:0.75rem;line-height:1.2">Upgrade to <span style="font-style:italic;color:var(--mint)">Pro.</span></p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.55);font-weight:300;line-height:1.65;margin-bottom:1.25rem">Unlimited emails, A/B subject variants, 3-email follow-up sequences, and full history.</p>
+      <a href="#" onclick="goToCheckout(event,'pro')" style="display:block;width:100%;padding:11px;text-align:center;font-size:13px;font-weight:500;font-family:var(--fb);background:var(--mint);color:var(--forest);border-radius:var(--radius);text-decoration:none;transition:background 0.15s" onmouseover="this.style.background='#00b578'" onmouseout="this.style.background='#00d68f'">Upgrade — $19/mo →</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+  const SUPABASE_URL = 'https://ixazhhmcgtgrknmwndbp.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4YXpoaG1jZ3RncmtubXduZGJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk4NDQ1OTAsImV4cCI6MjA3NTQyMDU5MH0.asvClCcNhiZwOZDlNhYB8PKd6Um1lbAdUFTwfaX_O_8';
+  const FREE_LIMIT = 5;
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let currentSession = null;
+  let currentProfile = null;
+  let selectedTone   = 'professional';
+
+  // ── INIT ─────────────────────────────────────────────────────
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = '/login.html'; return; }
+    currentSession = session;
+    await loadProfile();
+    await loadHistory();
+    document.getElementById('loading-screen').style.opacity = '0';
+    setTimeout(() => document.getElementById('loading-screen').style.display = 'none', 300);
+  }
+
+  async function loadProfile() {
+    const user = currentSession.user;
+    const { data: profile } = await sb.from('pf_profiles').select('*').eq('id', user.id).single();
+    currentProfile = profile;
+
+    // Nav
+    document.getElementById('nav-email').textContent  = user.email;
+    const planBadge = document.getElementById('nav-plan');
+    planBadge.textContent = profile?.plan === 'pro' ? 'Pro' : profile?.plan === 'team' ? 'Team' : 'Free';
+    planBadge.className   = `plan-badge plan-${profile?.plan || 'free'}`;
+
+    // Account card
+    document.getElementById('acct-email').textContent = user.email;
+    document.getElementById('acct-plan').textContent  = profile?.plan ? profile.plan.charAt(0).toUpperCase() + profile.plan.slice(1) : 'Free';
+    document.getElementById('acct-since').textContent = new Date(user.created_at).toLocaleDateString('en-US', { month:'short', year:'numeric' });
+    document.getElementById('acct-reset').textContent = profile?.usage_reset_at
+      ? new Date(profile.usage_reset_at).toLocaleDateString('en-US', { month:'short', day:'numeric' })
+      : '—';
+
+    // Usage bar
+    renderUsage(profile);
+
+    // Hide upgrade widgets for paid users
+    if (profile?.plan === 'pro' || profile?.plan === 'team') {
+      document.getElementById('upgrade-card').style.display = 'none';
+      document.getElementById('upgrade-btn').style.display  = 'none';
+    }
+  }
+
+  function renderUsage(profile) {
+    const used  = profile?.emails_used_this_month || 0;
+    const plan  = profile?.plan || 'free';
+    const numEl = document.getElementById('usage-num');
+    const fill  = document.getElementById('usage-fill');
+    const sub   = document.getElementById('usage-sub');
+
+    if (plan === 'free') {
+      const pct = Math.min((used / FREE_LIMIT) * 100, 100);
+      numEl.textContent = `${used} / ${FREE_LIMIT}`;
+      fill.style.width  = pct + '%';
+      fill.className    = 'usage-bar-fill' + (pct >= 100 ? ' danger' : pct >= 80 ? ' warning' : '');
+      sub.textContent   = used >= FREE_LIMIT
+        ? 'Limit reached. Upgrade for unlimited access.'
+        : `${FREE_LIMIT - used} free email${FREE_LIMIT - used === 1 ? '' : 's'} remaining this month.`;
+    } else {
+      numEl.textContent = `${used} (unlimited)`;
+      fill.style.width  = '100%';
+      fill.className    = 'usage-bar-fill';
+      sub.textContent   = 'Pro plan — unlimited emails every month.';
+    }
+  }
+
+  // ── HISTORY ───────────────────────────────────────────────────
+  async function loadHistory() {
+    const { data: emails } = await sb.from('pf_emails').select('*')
+      .eq('user_id', currentSession.user.id)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    renderHistory(emails || []);
+  }
+
+  function renderHistory(emails) {
+    const list = document.getElementById('history-list');
+    if (!emails.length) {
+      list.innerHTML = '<div class="empty-history"><div class="empty-icon">✉</div><p>No emails yet. Generate your first one above.</p></div>';
+      return;
+    }
+    list.innerHTML = emails.map(e => `
+      <div class="history-item" onclick="loadHistoryItem(${JSON.stringify(e).replace(/"/g,'&quot;')})">
+        <div class="history-target">${escHtml(e.target)}</div>
+        <div class="history-subject">${escHtml(e.subject)}</div>
+        <div class="history-date">${new Date(e.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+        <button class="history-delete" onclick="deleteEmail(event,'${e.id}')" title="Delete">×</button>
+      </div>
+    `).join('');
+  }
+
+  function loadHistoryItem(email) {
+    document.getElementById('sender').value   = email.sender;
+    document.getElementById('target').value   = email.target;
+    document.getElementById('offer').value    = email.offer;
+    document.getElementById('cta').value      = email.cta;
+    document.querySelectorAll('.tone-pill').forEach(b => {
+      b.classList.toggle('active', b.onclick.toString().includes(`'${email.tone}'`));
+    });
+    selectedTone = email.tone;
+    showResult(email.subject, email.body, email.sender, email.target);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  async function deleteEmail(evt, id) {
+    evt.stopPropagation();
+    await sb.from('pf_emails').delete().eq('id', id);
+    await loadHistory();
+  }
+
+  // ── GENERATE ─────────────────────────────────────────────────
+  async function generateEmail() {
+    const sender    = document.getElementById('sender').value.trim();
+    const target    = document.getElementById('target').value.trim();
+    const offer     = document.getElementById('offer').value.trim();
+    const cta       = document.getElementById('cta').value.trim();
+    const errorEl   = document.getElementById('error');
+    const loadingEl = document.getElementById('loading');
+    const genBtn    = document.getElementById('gen-btn');
+    const resultEl  = document.getElementById('result');
+
+    errorEl.style.display = 'none';
+    if (!sender || !target || !offer || !cta) {
+      errorEl.textContent = 'Please fill in all four fields.';
+      errorEl.style.display = 'block'; return;
+    }
+
+    // Refresh session token
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = '/login.html'; return; }
+    currentSession = session;
+
+    genBtn.disabled = true;
+    loadingEl.style.display = 'flex';
+    resultEl.style.display  = 'none';
+
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ sender, target, offer, cta, tone: selectedTone }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.error === 'free_limit_reached') {
+          errorEl.innerHTML = `You've used all ${FREE_LIMIT} free emails this month. <a href="#" onclick="goToCheckout(event,'pro')" style="color:var(--mint-dim);font-weight:500">Upgrade to Pro →</a>`;
+          errorEl.style.display = 'block';
+          document.getElementById('upgrade-card').scrollIntoView({ behavior:'smooth', block:'nearest' });
+        } else {
+          throw new Error(data.error || 'Something went wrong.');
+        }
+        return;
+      }
+
+      showResult(data.subject, data.body, sender, target);
+      if (currentProfile) {
+        currentProfile.emails_used_this_month = (data.usage?.used || 0);
+        renderUsage(currentProfile);
+      }
+      await loadHistory();
+
+    } catch (e) {
+      errorEl.textContent = e.message;
+      errorEl.style.display = 'block';
+    } finally {
+      genBtn.disabled = false;
+      loadingEl.style.display = 'none';
+    }
+  }
+
+  function showResult(subject, body, sender, target) {
+    document.getElementById('subject-display').textContent = subject;
+    document.getElementById('body-display').textContent    = body;
+    document.getElementById('from-disp').textContent       = sender;
+    document.getElementById('to-disp').textContent         = target;
+    const r = document.getElementById('result');
+    r.style.display = 'block';
+    setTimeout(() => r.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
+  }
+
+  function copyEmail(evt) {
+    const subject = document.getElementById('subject-display').textContent;
+    const body    = document.getElementById('body-display').textContent;
+    navigator.clipboard.writeText(`Subject: ${subject}\n\n${body}`).then(() => {
+      const btn = evt.target;
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy email', 1800);
+    });
+  }
+
+  function setTone(btn, tone) {
+    document.querySelectorAll('.tone-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedTone = tone;
+  }
+
+  async function signOut() {
+    await sb.auth.signOut();
+    window.location.href = '/login.html';
+  }
+
+  async function goToCheckout(evt, plan) {
+    evt.preventDefault();
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = '/login.html'; return; }
+    window.location.href = `/api/checkout?plan=${plan}&token=${session.access_token}`;
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  document.addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') generateEmail();
+  });
+
+  init();
+</script>
+</body>
+</html>

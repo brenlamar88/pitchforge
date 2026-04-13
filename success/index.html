@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PitchForge — Welcome to Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--forest:#0b1e13;--mint:#00d68f;--mint-dim:#00b578;--mint-pale:rgba(0,214,143,0.12);--on-dark:rgba(255,255,255,0.50);--on-dark-border:rgba(255,255,255,0.10);--fd:'Fraunces',Georgia,serif;--fb:'DM Sans',system-ui,sans-serif;}
+    body{font-family:var(--fb);background:var(--forest);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;-webkit-font-smoothing:antialiased}
+    .card{width:100%;max-width:460px;background:rgba(255,255,255,0.04);border:0.5px solid var(--on-dark-border);border-radius:24px;padding:3rem 2.5rem;text-align:center;animation:up 0.5s ease both}
+    @keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    .check{width:64px;height:64px;background:var(--mint-pale);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem}
+    .plan-tag{display:inline-block;background:var(--mint-pale);border:0.5px solid rgba(0,214,143,0.22);color:var(--mint);font-size:11px;font-weight:500;padding:4px 14px;border-radius:20px;margin-bottom:1.25rem;text-transform:uppercase;letter-spacing:0.06em}
+    h1{font-family:var(--fd);font-size:36px;font-weight:400;letter-spacing:-0.025em;color:white;margin-bottom:0.75rem;line-height:1.1}
+    h1 em{font-style:italic;color:var(--mint)}
+    p{font-size:15px;font-weight:300;color:var(--on-dark);line-height:1.75;margin-bottom:2rem}
+    .btn{display:inline-block;padding:13px 32px;background:var(--mint);color:var(--forest);border:none;border-radius:10px;font-size:15px;font-weight:500;font-family:var(--fb);text-decoration:none;cursor:pointer;transition:background 0.15s}
+    .btn:hover{background:var(--mint-dim)}
+    .footer{font-family:var(--fd);font-size:14px;color:rgba(255,255,255,0.2);margin-top:2rem}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="check">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M5 14l7 7 11-11" stroke="#00d68f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="plan-tag" id="plan-tag">Pro plan</div>
+    <h1>You're in.<br><em>Let's get pitching.</em></h1>
+    <p>Your subscription is active. Head to your dashboard and start generating cold emails that actually get replies — unlimited, on demand.</p>
+    <a class="btn" href="/dashboard.html">Go to dashboard →</a>
+    <p class="footer">PitchForge</p>
+  </div>
+  <script>
+    const plan = new URLSearchParams(window.location.search).get('plan');
+    if (plan === 'team') document.getElementById('plan-tag').textContent = 'Team plan';
+  </script>
+</body>
+</html>

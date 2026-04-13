@@ -1,450 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>PitchForge — AI Cold Email Generator</title>
-  <meta name="description" content="Write personalized cold emails that get replies. AI-powered outreach for sales reps, freelancers, and founders. Generate in under 10 seconds.">
+  <meta name="description" content="Write personalized cold emails that get replies. AI-powered outreach for sales reps, freelancers, and founders in under 10 seconds.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --forest:         #0b1e13;
-      --forest-mid:     #142b1d;
-      --forest-light:   #1d3d28;
-      --mint:           #00d68f;
-      --mint-dim:       #00b578;
-      --mint-pale:      rgba(0,214,143,0.12);
-      --cream:          #f9f7f1;
-      --cream-dark:     #f0ede5;
-      --white:          #ffffff;
-      --ink:            #0f1a13;
-      --ink-mid:        #3a4e3f;
-      --ink-light:      #7a8f80;
-      --ink-xlight:     #b0c0b5;
-      --border:         rgba(15,26,19,0.10);
-      --border-mid:     rgba(15,26,19,0.18);
-      --on-dark-border: rgba(255,255,255,0.10);
-      --on-dark-text:   rgba(255,255,255,0.50);
-      --radius:         10px;
-      --radius-lg:      16px;
-      --radius-xl:      24px;
-      --font-display:   'Fraunces', Georgia, serif;
-      --font-body:      'DM Sans', system-ui, sans-serif;
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --forest:#0b1e13;--forest-mid:#142b1d;--forest-light:#1d3d28;
+      --mint:#00d68f;--mint-dim:#00b578;--mint-pale:rgba(0,214,143,0.12);
+      --cream:#f9f7f1;--cream-dark:#f0ede5;--white:#fff;
+      --ink:#0f1a13;--ink-mid:#3a4e3f;--ink-light:#7a8f80;--ink-xlight:#b0c0b5;
+      --border:rgba(15,26,19,0.10);--border-mid:rgba(15,26,19,0.18);
+      --on-dark:rgba(255,255,255,0.50);--on-dark-border:rgba(255,255,255,0.10);
+      --radius:10px;--radius-lg:16px;--radius-xl:24px;
+      --fd:'Fraunces',Georgia,serif;--fb:'DM Sans',system-ui,sans-serif;
     }
-
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: var(--font-body);
-      background: var(--cream);
-      color: var(--ink);
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* ── NAV ── */
-    nav {
-      position: sticky; top: 0; z-index: 100;
-      background: var(--forest);
-      border-bottom: 0.5px solid var(--on-dark-border);
-      padding: 0 2rem;
-    }
-    .nav-inner {
-      max-width: 1100px; margin: 0 auto;
-      display: flex; justify-content: space-between; align-items: center;
-      height: 60px;
-    }
-    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .logo-mark {
-      width: 32px; height: 32px; background: var(--mint);
-      border-radius: 8px; display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .logo-name {
-      font-family: var(--font-display); font-size: 18px; font-weight: 500;
-      color: white; letter-spacing: -0.02em;
-    }
-    .nav-links { display: flex; align-items: center; gap: 1.5rem; }
-    .nav-link {
-      font-size: 13px; color: var(--on-dark-text);
-      background: none; border: none; font-family: var(--font-body);
-      cursor: pointer; transition: color 0.15s; text-decoration: none;
-    }
-    .nav-link:hover { color: white; }
-    .nav-cta {
-      padding: 8px 20px; background: var(--mint); color: var(--forest);
-      border: none; border-radius: var(--radius);
-      font-size: 13px; font-weight: 500; font-family: var(--font-body);
-      cursor: pointer; transition: background 0.15s;
-    }
-    .nav-cta:hover { background: var(--mint-dim); }
-
-    /* ── HERO ── */
-    .hero {
-      background: var(--forest);
-      padding: 6rem 2rem 7rem;
-      position: relative; overflow: hidden;
-    }
-    .hero-dots {
-      position: absolute; inset: 0; pointer-events: none;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.055) 1px, transparent 1px);
-      background-size: 28px 28px;
-    }
-    .hero-glow {
-      position: absolute; inset: 0; pointer-events: none;
-      background:
-        radial-gradient(ellipse 60% 50% at 15% 60%, rgba(0,214,143,0.07) 0%, transparent 100%),
-        radial-gradient(ellipse 40% 40% at 85% 20%, rgba(0,214,143,0.05) 0%, transparent 100%);
-    }
-    .hero-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
-    .hero-badge {
-      display: inline-flex; align-items: center; gap: 7px;
-      background: var(--mint-pale);
-      border: 0.5px solid rgba(0,214,143,0.22);
-      color: var(--mint);
-      font-size: 12px; font-weight: 500;
-      padding: 5px 14px; border-radius: 20px;
-      margin-bottom: 2rem; letter-spacing: 0.02em;
-      animation: fadeUp 0.5s ease both;
-    }
-    .badge-dot {
-      width: 6px; height: 6px; background: var(--mint); border-radius: 50%;
-      animation: blink 2.5s ease infinite;
-    }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    h1 {
-      font-family: var(--font-display);
-      font-size: clamp(40px, 6vw, 76px); font-weight: 400;
-      line-height: 1.05; letter-spacing: -0.03em;
-      color: white; margin-bottom: 1.5rem; max-width: 680px;
-      animation: fadeUp 0.5s 0.08s ease both;
-    }
-    h1 em { font-style: italic; color: var(--mint); }
-    .hero-sub {
-      font-size: 17px; font-weight: 300; color: var(--on-dark-text);
-      line-height: 1.78; max-width: 460px; margin-bottom: 2.5rem;
-      animation: fadeUp 0.5s 0.16s ease both;
-    }
-    .hero-actions {
-      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
-      margin-bottom: 4rem;
-      animation: fadeUp 0.5s 0.22s ease both;
-    }
-    .btn-hero {
-      padding: 14px 30px; background: var(--mint); color: var(--forest);
-      border: none; border-radius: var(--radius);
-      font-size: 15px; font-weight: 500; font-family: var(--font-body);
-      cursor: pointer; transition: background 0.15s;
-    }
-    .btn-hero:hover { background: var(--mint-dim); }
-    .hero-note { font-size: 13px; color: var(--on-dark-text); }
-    .stats-grid {
-      display: grid; grid-template-columns: repeat(3, auto);
-      width: fit-content;
-      border: 0.5px solid var(--on-dark-border);
-      border-radius: var(--radius-lg); overflow: hidden;
-      animation: fadeUp 0.5s 0.3s ease both;
-    }
-    .stat { padding: 1.25rem 2.25rem; text-align: center; }
-    .stat + .stat { border-left: 0.5px solid var(--on-dark-border); }
-    .stat-num {
-      display: block; font-family: var(--font-display);
-      font-size: 30px; font-weight: 400; color: white; letter-spacing: -0.02em;
-    }
-    .stat-label { display: block; font-size: 12px; color: var(--on-dark-text); margin-top: 3px; }
-    @keyframes fadeUp {
-      from { opacity:0; transform:translateY(14px); }
-      to   { opacity:1; transform:translateY(0); }
-    }
-
-    /* ── TOOL ── */
-    .tool-section { max-width: 780px; margin: 0 auto; padding: 5rem 2rem; }
-    .section-label {
-      font-size: 11px; font-weight: 500;
-      text-transform: uppercase; letter-spacing: 0.1em;
-      color: var(--ink-light); margin-bottom: 0.4rem;
-    }
-    .section-title {
-      font-family: var(--font-display);
-      font-size: clamp(26px, 4vw, 38px); font-weight: 400;
-      letter-spacing: -0.025em; color: var(--ink);
-      margin-bottom: 2.5rem; line-height: 1.15;
-    }
-    .form-card {
-      background: var(--white);
-      border: 0.5px solid var(--border-mid);
-      border-radius: var(--radius-xl);
-      padding: 2.5rem;
-      box-shadow: 0 1px 3px rgba(15,26,19,0.04), 0 4px 24px rgba(15,26,19,0.06);
-    }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .field { margin-bottom: 1.25rem; }
-    .field-label {
-      display: block; font-size: 11px; font-weight: 500;
-      text-transform: uppercase; letter-spacing: 0.08em;
-      color: var(--ink-light); margin-bottom: 8px;
-    }
-    .field-input {
-      width: 100%; padding: 11px 14px;
-      font-size: 14px; font-family: var(--font-body);
-      background: var(--cream); color: var(--ink);
-      border: 1px solid var(--border); border-radius: var(--radius);
-      outline: none; transition: border-color 0.15s, background 0.15s;
-    }
-    .field-input:focus { border-color: var(--mint-dim); background: var(--white); }
-    .field-input::placeholder { color: var(--ink-xlight); }
-    .form-divider { height: 0.5px; background: var(--border); margin: 1.5rem 0; }
-
-    /* Tone */
-    .tone-row { display: flex; gap: 8px; flex-wrap: wrap; }
-    .tone-pill {
-      padding: 7px 16px; font-size: 13px; font-family: var(--font-body);
-      background: var(--cream); color: var(--ink-mid);
-      border: 1px solid var(--border); border-radius: 30px;
-      cursor: pointer; transition: all 0.15s;
-    }
-    .tone-pill:hover { border-color: var(--mint-dim); color: var(--ink); }
-    .tone-pill.active { background: var(--forest); border-color: var(--forest); color: white; font-weight: 500; }
-
-    /* Free tier counter */
-    .usage-bar {
-      display: flex; align-items: center; justify-content: space-between;
-      font-size: 12px; color: var(--ink-light);
-      margin-bottom: 1rem;
-    }
-    .usage-pips { display: flex; gap: 4px; }
-    .pip {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--border-mid); transition: background 0.2s;
-    }
-    .pip.used { background: var(--mint); }
-    .pip.empty { background: var(--border-mid); }
-
-    /* Generate btn */
-    .gen-btn {
-      width: 100%; padding: 14px;
-      font-size: 15px; font-weight: 500; font-family: var(--font-body);
-      background: var(--forest); color: white;
-      border: none; border-radius: var(--radius);
-      cursor: pointer; transition: background 0.15s;
-      letter-spacing: 0.01em;
-    }
-    .gen-btn:hover { background: var(--forest-light); }
-    .gen-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    /* Loading / Error */
-    .loading-row {
-      display: none; align-items: center; gap: 12px;
-      padding: 1rem 0 0; font-size: 13px; color: var(--ink-light);
-    }
-    .spinner {
-      width: 16px; height: 16px;
-      border: 2px solid var(--border-mid); border-top-color: var(--ink-mid);
-      border-radius: 50%; animation: spin 0.75s linear infinite; flex-shrink: 0;
-    }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    .error-msg {
-      display: none; font-size: 13px; color: #7a1f1f;
-      background: #fdf0f0; border: 0.5px solid rgba(122,31,31,0.18);
-      border-radius: var(--radius); padding: 10px 14px; margin-top: 1rem;
-    }
-
-    /* Upgrade nudge */
-    .upgrade-nudge {
-      display: none;
-      background: var(--forest);
-      border-radius: var(--radius-lg);
-      padding: 1.5rem;
-      margin-top: 1.25rem;
-      text-align: center;
-    }
-    .upgrade-nudge p {
-      font-size: 14px; color: rgba(255,255,255,0.65);
-      margin-bottom: 1rem; line-height: 1.65;
-    }
-    .upgrade-nudge p strong { color: white; }
-    .btn-upgrade {
-      display: inline-block;
-      padding: 10px 24px;
-      background: var(--mint); color: var(--forest);
-      border: none; border-radius: var(--radius);
-      font-size: 14px; font-weight: 500; font-family: var(--font-body);
-      text-decoration: none; cursor: pointer;
-    }
-
-    /* Email result */
-    .result-wrapper { display: none; margin-top: 2rem; animation: fadeUp 0.4s ease both; }
-    .result-eyebrow {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 11px; font-weight: 500;
-      text-transform: uppercase; letter-spacing: 0.1em;
-      color: var(--ink-light); margin-bottom: 1rem;
-    }
-    .result-eyebrow::before {
-      content: ''; width: 8px; height: 8px;
-      background: var(--mint); border-radius: 50%;
-    }
-    .email-card {
-      background: var(--white);
-      border: 0.5px solid var(--border-mid);
-      border-left: 3px solid var(--mint);
-      border-radius: var(--radius-lg); overflow: hidden;
-      box-shadow: 0 4px 32px rgba(15,26,19,0.08);
-    }
-    .email-header {
-      background: var(--cream);
-      border-bottom: 0.5px solid var(--border);
-      padding: 1rem 1.5rem;
-    }
-    .email-field-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
-    .email-field-row:last-child { margin-bottom: 0; }
-    .email-field-key {
-      font-size: 11px; font-weight: 500;
-      text-transform: uppercase; letter-spacing: 0.07em;
-      color: var(--ink-light); min-width: 50px; flex-shrink: 0;
-    }
-    .email-field-val { color: var(--ink); font-size: 13px; }
-    #subject-display { font-weight: 500; }
-    .email-body {
-      padding: 1.75rem 1.5rem;
-      font-size: 14px; line-height: 1.9; color: var(--ink-mid); white-space: pre-wrap;
-    }
-    .email-actions {
-      border-top: 0.5px solid var(--border); padding: 1rem 1.5rem;
-      display: flex; gap: 8px; flex-wrap: wrap; background: var(--cream);
-    }
-    .action-btn {
-      padding: 7px 16px; font-size: 12px; font-weight: 500; font-family: var(--font-body);
-      background: var(--white); color: var(--ink-mid);
-      border: 0.5px solid var(--border-mid); border-radius: var(--radius);
-      cursor: pointer; transition: all 0.15s;
-    }
-    .action-btn:hover { background: var(--forest); color: white; border-color: var(--forest); }
-
-    /* ── TESTIMONIALS ── */
-    .testimonials { background: var(--forest); padding: 5rem 2rem; }
-    .testimonials-inner { max-width: 1100px; margin: 0 auto; }
-    .testimonials .section-label { color: rgba(255,255,255,0.28); }
-    .testimonials .section-title { color: white; margin-bottom: 2.5rem; }
-    .testimonial-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 1rem; }
-    .testimonial-card {
-      background: var(--forest-mid);
-      border: 0.5px solid var(--on-dark-border);
-      border-radius: var(--radius-lg); padding: 1.5rem;
-    }
-    .quote-mark {
-      font-family: var(--font-display); font-size: 52px; line-height: 1;
-      color: var(--mint); opacity: 0.35; margin-bottom: 0.25rem;
-    }
-    .testimonial-text {
-      font-size: 14px; font-weight: 300;
-      color: rgba(255,255,255,0.65); line-height: 1.78; margin-bottom: 1.25rem;
-    }
-    .testimonial-author { font-size: 13px; font-weight: 500; color: white; }
-    .testimonial-role { font-size: 12px; color: rgba(255,255,255,0.32); margin-top: 2px; }
-
-    /* ── PRICING ── */
-    .pricing { max-width: 1100px; margin: 0 auto; padding: 5rem 2rem; }
-    .pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
-    .pricing-card {
-      background: var(--white);
-      border: 0.5px solid var(--border-mid);
-      border-radius: var(--radius-xl); padding: 2rem;
-    }
-    .pricing-card.featured { background: var(--forest); border-color: var(--forest); }
-    .plan-label {
-      font-size: 11px; font-weight: 500;
-      text-transform: uppercase; letter-spacing: 0.1em;
-      color: var(--ink-light); margin-bottom: 1.25rem;
-    }
-    .pricing-card.featured .plan-label { color: rgba(255,255,255,0.35); }
-    .plan-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.25rem; }
-    .pop-tag {
-      background: var(--mint-pale); color: var(--mint);
-      font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; margin-top: 4px;
-    }
-    .plan-price-num {
-      font-family: var(--font-display); font-size: 44px; font-weight: 400;
-      letter-spacing: -0.03em; color: var(--ink); line-height: 1;
-    }
-    .pricing-card.featured .plan-price-num { color: white; }
-    .plan-price-period { font-size: 13px; color: var(--ink-light); display: block; margin-top: 4px; }
-    .pricing-card.featured .plan-price-period { color: rgba(255,255,255,0.35); }
-    .plan-features { list-style: none; margin: 1.5rem 0; }
-    .plan-features li {
-      font-size: 13px; color: var(--ink-mid);
-      padding: 7px 0; border-bottom: 0.5px solid var(--border);
-      display: flex; align-items: center; gap: 10px;
-    }
-    .plan-features li:last-child { border-bottom: none; }
-    .pricing-card.featured .plan-features li { color: rgba(255,255,255,0.6); border-color: var(--on-dark-border); }
-    .feat-check {
-      width: 18px; height: 18px; background: var(--mint-pale);
-      border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    }
-    .pricing-card.featured .feat-check { background: rgba(0,214,143,0.14); }
-    .plan-btn {
-      display: block; width: 100%; padding: 12px; text-align: center;
-      font-size: 14px; font-weight: 500; font-family: var(--font-body);
-      border-radius: var(--radius); text-decoration: none; cursor: pointer;
-      transition: all 0.15s; border: none;
-    }
-    .btn-outline { background: transparent; border: 1px solid var(--border-mid); color: var(--ink); }
-    .btn-outline:hover { background: var(--cream-dark); }
-    .btn-mint { background: var(--mint); color: var(--forest); }
-    .btn-mint:hover { background: var(--mint-dim); }
-
-    /* ── FOOTER ── */
-    footer { background: var(--forest); border-top: 0.5px solid var(--on-dark-border); padding: 2rem; }
-    .footer-inner {
-      max-width: 1100px; margin: 0 auto;
-      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
-    }
-    .footer-logo { font-family: var(--font-display); font-size: 16px; font-weight: 400; color: white; letter-spacing: -0.02em; }
-    .footer-copy { font-size: 12px; color: rgba(255,255,255,0.25); }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 720px) {
-      .pricing-grid { grid-template-columns: 1fr; }
-      .stats-grid { width: 100%; grid-template-columns: repeat(3,1fr); }
-      .stat { padding: 1rem 0.5rem; }
-      .stat-num { font-size: 24px; }
-    }
-    @media (max-width: 560px) {
-      h1 { font-size: 36px; }
-      .form-grid { grid-template-columns: 1fr; }
-      .form-card { padding: 1.5rem; }
-      nav { padding: 0 1rem; }
-      .hero { padding: 4rem 1.25rem 5rem; }
-    }
+    html{scroll-behavior:smooth}
+    body{font-family:var(--fb);background:var(--cream);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+    /* NAV */
+    nav{position:sticky;top:0;z-index:100;background:var(--forest);border-bottom:0.5px solid var(--on-dark-border);padding:0 2rem}
+    .nav-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;height:60px}
+    .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+    .logo-mark{width:32px;height:32px;background:var(--mint);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .logo-name{font-family:var(--fd);font-size:18px;font-weight:500;color:white;letter-spacing:-0.02em}
+    .nav-links{display:flex;align-items:center;gap:1.5rem}
+    .nav-link{font-size:13px;color:var(--on-dark);background:none;border:none;font-family:var(--fb);cursor:pointer;transition:color 0.15s;text-decoration:none}
+    .nav-link:hover{color:white}
+    .nav-cta{padding:8px 20px;background:var(--mint);color:var(--forest);border:none;border-radius:var(--radius);font-size:13px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:background 0.15s;text-decoration:none;display:inline-block}
+    .nav-cta:hover{background:var(--mint-dim)}
+    /* HERO */
+    .hero{background:var(--forest);padding:6rem 2rem 7rem;position:relative;overflow:hidden}
+    .hero-dots{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle,rgba(255,255,255,0.055) 1px,transparent 1px);background-size:28px 28px}
+    .hero-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 50% at 15% 60%,rgba(0,214,143,0.07) 0%,transparent 100%),radial-gradient(ellipse 40% 40% at 85% 20%,rgba(0,214,143,0.05) 0%,transparent 100%)}
+    .hero-inner{max-width:1100px;margin:0 auto;position:relative;z-index:1}
+    .hero-badge{display:inline-flex;align-items:center;gap:7px;background:var(--mint-pale);border:0.5px solid rgba(0,214,143,0.22);color:var(--mint);font-size:12px;font-weight:500;padding:5px 14px;border-radius:20px;margin-bottom:2rem;letter-spacing:0.02em;animation:up 0.5s ease both}
+    .badge-dot{width:6px;height:6px;background:var(--mint);border-radius:50%;animation:blink 2.5s ease infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+    h1{font-family:var(--fd);font-size:clamp(40px,6vw,76px);font-weight:400;line-height:1.05;letter-spacing:-0.03em;color:white;margin-bottom:1.5rem;max-width:680px;animation:up 0.5s 0.08s ease both}
+    h1 em{font-style:italic;color:var(--mint)}
+    .hero-sub{font-size:17px;font-weight:300;color:var(--on-dark);line-height:1.78;max-width:460px;margin-bottom:2.5rem;animation:up 0.5s 0.16s ease both}
+    .hero-actions{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:4rem;animation:up 0.5s 0.22s ease both}
+    .btn-hero{padding:14px 30px;background:var(--mint);color:var(--forest);border:none;border-radius:var(--radius);font-size:15px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:background 0.15s;text-decoration:none;display:inline-block}
+    .btn-hero:hover{background:var(--mint-dim)}
+    .hero-note{font-size:13px;color:var(--on-dark)}
+    .stats-grid{display:grid;grid-template-columns:repeat(3,auto);width:fit-content;border:0.5px solid var(--on-dark-border);border-radius:var(--radius-lg);overflow:hidden;animation:up 0.5s 0.3s ease both}
+    .stat{padding:1.25rem 2.25rem;text-align:center}
+    .stat+.stat{border-left:0.5px solid var(--on-dark-border)}
+    .stat-num{display:block;font-family:var(--fd);font-size:30px;font-weight:400;color:white;letter-spacing:-0.02em}
+    .stat-label{display:block;font-size:12px;color:var(--on-dark);margin-top:3px}
+    @keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+    /* HOW IT WORKS */
+    .how{max-width:1100px;margin:0 auto;padding:5rem 2rem}
+    .section-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light);margin-bottom:0.4rem}
+    .section-title{font-family:var(--fd);font-size:clamp(26px,4vw,38px);font-weight:400;letter-spacing:-0.025em;color:var(--ink);margin-bottom:2.5rem;line-height:1.15}
+    .steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.25rem}
+    .step-card{background:var(--white);border:0.5px solid var(--border-mid);border-radius:var(--radius-xl);padding:1.75rem}
+    .step-num{font-family:var(--fd);font-size:32px;font-weight:400;color:var(--mint);letter-spacing:-0.02em;margin-bottom:0.75rem;line-height:1}
+    .step-title{font-size:15px;font-weight:500;color:var(--ink);margin-bottom:0.5rem}
+    .step-desc{font-size:13px;color:var(--ink-light);line-height:1.65;font-weight:300}
+    /* TESTIMONIALS */
+    .testimonials{background:var(--forest);padding:5rem 2rem}
+    .testimonials-inner{max-width:1100px;margin:0 auto}
+    .testimonials .section-label{color:rgba(255,255,255,0.28)}
+    .testimonials .section-title{color:white;margin-bottom:2.5rem}
+    .testimonial-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
+    .testimonial-card{background:var(--forest-mid);border:0.5px solid var(--on-dark-border);border-radius:var(--radius-lg);padding:1.5rem}
+    .quote-mark{font-family:var(--fd);font-size:52px;line-height:1;color:var(--mint);opacity:0.35;margin-bottom:0.25rem}
+    .testimonial-text{font-size:14px;font-weight:300;color:rgba(255,255,255,0.65);line-height:1.78;margin-bottom:1.25rem}
+    .testimonial-author{font-size:13px;font-weight:500;color:white}
+    .testimonial-role{font-size:12px;color:rgba(255,255,255,0.32);margin-top:2px}
+    /* PRICING */
+    .pricing{max-width:1100px;margin:0 auto;padding:5rem 2rem}
+    .pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+    .pricing-card{background:var(--white);border:0.5px solid var(--border-mid);border-radius:var(--radius-xl);padding:2rem}
+    .pricing-card.featured{background:var(--forest);border-color:var(--forest)}
+    .plan-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light);margin-bottom:1.25rem}
+    .pricing-card.featured .plan-label{color:rgba(255,255,255,0.35)}
+    .plan-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem}
+    .pop-tag{background:var(--mint-pale);color:var(--mint);font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;margin-top:4px}
+    .plan-price-num{font-family:var(--fd);font-size:44px;font-weight:400;letter-spacing:-0.03em;color:var(--ink);line-height:1}
+    .pricing-card.featured .plan-price-num{color:white}
+    .plan-price-period{font-size:13px;color:var(--ink-light);display:block;margin-top:4px}
+    .pricing-card.featured .plan-price-period{color:rgba(255,255,255,0.35)}
+    .plan-features{list-style:none;margin:1.5rem 0}
+    .plan-features li{font-size:13px;color:var(--ink-mid);padding:7px 0;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px}
+    .plan-features li:last-child{border-bottom:none}
+    .pricing-card.featured .plan-features li{color:rgba(255,255,255,0.6);border-color:var(--on-dark-border)}
+    .feat-check{width:18px;height:18px;background:var(--mint-pale);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .pricing-card.featured .feat-check{background:rgba(0,214,143,0.14)}
+    .plan-btn{display:block;width:100%;padding:12px;text-align:center;font-size:14px;font-weight:500;font-family:var(--fb);border-radius:var(--radius);text-decoration:none;cursor:pointer;transition:all 0.15s;border:none}
+    .btn-outline{background:transparent;border:1px solid var(--border-mid);color:var(--ink)}
+    .btn-outline:hover{background:var(--cream-dark)}
+    .btn-mint{background:var(--mint);color:var(--forest)}
+    .btn-mint:hover{background:var(--mint-dim)}
+    /* CTA BANNER */
+    .cta-banner{background:var(--forest);padding:5rem 2rem;text-align:center}
+    .cta-inner{max-width:560px;margin:0 auto}
+    .cta-inner h2{font-family:var(--fd);font-size:clamp(28px,4vw,42px);font-weight:400;color:white;letter-spacing:-0.025em;margin-bottom:1rem;line-height:1.1}
+    .cta-inner h2 em{font-style:italic;color:var(--mint)}
+    .cta-inner p{font-size:15px;font-weight:300;color:var(--on-dark);margin-bottom:2rem;line-height:1.7}
+    /* FOOTER */
+    footer{background:var(--forest);border-top:0.5px solid var(--on-dark-border);padding:2rem}
+    .footer-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+    .footer-logo{font-family:var(--fd);font-size:16px;font-weight:400;color:white;letter-spacing:-0.02em}
+    .footer-copy{font-size:12px;color:rgba(255,255,255,0.25)}
+    /* RESPONSIVE */
+    @media(max-width:720px){.pricing-grid{grid-template-columns:1fr}.stats-grid{width:100%;grid-template-columns:repeat(3,1fr)}.stat{padding:1rem 0.5rem}.stat-num{font-size:24px}}
+    @media(max-width:560px){h1{font-size:36px}.hero{padding:4rem 1.25rem 5rem}nav{padding:0 1rem}}
   </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
   <div class="nav-inner">
-    <a class="logo" href="#">
-      <div class="logo-mark">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M3.5 9.5l4 4 7-8" stroke="#0b1e13" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
+    <a class="logo" href="/index.html">
+      <div class="logo-mark"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3.5 9.5l4 4 7-8" stroke="#0b1e13" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <span class="logo-name">PitchForge</span>
     </a>
     <div class="nav-links">
       <button class="nav-link" onclick="document.getElementById('pricing-section').scrollIntoView({behavior:'smooth'})">Pricing</button>
-      <button class="nav-link" onclick="document.getElementById('tool-section').scrollIntoView({behavior:'smooth'})">Try it</button>
-      <button class="nav-cta" onclick="document.getElementById('tool-section').scrollIntoView({behavior:'smooth'})">Generate free →</button>
+      <a class="nav-link" href="/login.html" id="nav-signin">Sign in</a>
+      <a class="nav-cta" href="/login.html" id="nav-cta">Start free →</a>
     </div>
   </div>
 </nav>
 
-<!-- HERO -->
 <section class="hero">
   <div class="hero-dots"></div>
   <div class="hero-glow"></div>
@@ -453,8 +138,8 @@
     <h1>Cold emails that<br>actually <em>get replies.</em></h1>
     <p class="hero-sub">PitchForge writes personalized outreach for sales reps, freelancers, and founders in under 10 seconds. Fill in four fields. Done.</p>
     <div class="hero-actions">
-      <button class="btn-hero" onclick="document.getElementById('tool-section').scrollIntoView({behavior:'smooth'})">Generate your first email</button>
-      <span class="hero-note">No signup required.</span>
+      <a class="btn-hero" href="/login.html">Generate your first email →</a>
+      <span class="hero-note">No credit card required.</span>
     </div>
     <div class="stats-grid">
       <div class="stat"><span class="stat-num">47%</span><span class="stat-label">avg open rate</span></div>
@@ -464,100 +149,17 @@
   </div>
 </section>
 
-<!-- TOOL -->
-<section class="tool-section" id="tool-section">
-  <p class="section-label">The tool</p>
+<section class="how">
+  <p class="section-label">How it works</p>
   <h2 class="section-title">Four inputs.<br>One great email.</h2>
-
-  <div class="form-card">
-
-    <!-- Free tier usage indicator -->
-    <div class="usage-bar">
-      <span id="usage-text">5 free emails remaining</span>
-      <div class="usage-pips" id="usage-pips"></div>
-    </div>
-
-    <div class="form-grid">
-      <div class="field">
-        <label class="field-label" for="sender">Your name &amp; company</label>
-        <input class="field-input" type="text" id="sender" placeholder="e.g. Alex Chen, Acme Inc.">
-      </div>
-      <div class="field">
-        <label class="field-label" for="target">Target person &amp; company</label>
-        <input class="field-input" type="text" id="target" placeholder="e.g. Sarah Lee, Stripe">
-      </div>
-    </div>
-
-    <div class="field">
-      <label class="field-label" for="offer">What you're offering</label>
-      <input class="field-input" type="text" id="offer" placeholder="e.g. A tool that cuts your team's email writing time by 70%">
-    </div>
-
-    <div class="field" style="margin-bottom:0">
-      <label class="field-label" for="cta">Desired outcome / CTA</label>
-      <input class="field-input" type="text" id="cta" placeholder="e.g. 15-minute call this week">
-    </div>
-
-    <div class="form-divider"></div>
-
-    <div class="field" style="margin-bottom:0">
-      <label class="field-label">Tone</label>
-      <div class="tone-row">
-        <button class="tone-pill active" onclick="setTone(this,'professional')">Professional</button>
-        <button class="tone-pill" onclick="setTone(this,'friendly')">Friendly</button>
-        <button class="tone-pill" onclick="setTone(this,'bold')">Bold &amp; direct</button>
-        <button class="tone-pill" onclick="setTone(this,'concise')">Ultra-concise</button>
-      </div>
-    </div>
-
-    <div class="form-divider"></div>
-
-    <button class="gen-btn" id="gen-btn" onclick="generateEmail()">Generate cold email →</button>
-
-    <div class="loading-row" id="loading">
-      <div class="spinner"></div>
-      <span>Crafting your email…</span>
-    </div>
-
-    <div class="error-msg" id="error"></div>
-
-    <!-- Upgrade nudge (shown when free emails are exhausted) -->
-    <div class="upgrade-nudge" id="upgrade-nudge">
-      <p>You've used all <strong>5 free emails</strong>. Upgrade to Pro for unlimited generation, A/B variants, and follow-up sequences.</p>
-      <a class="btn-upgrade" href="/api/checkout?plan=pro">Upgrade to Pro — $19/mo →</a>
-    </div>
-
-    <!-- Result -->
-    <div class="result-wrapper" id="result">
-      <div class="result-eyebrow">Your email is ready</div>
-      <div class="email-card">
-        <div class="email-header">
-          <div class="email-field-row">
-            <span class="email-field-key">To</span>
-            <span class="email-field-val" id="to-display"></span>
-          </div>
-          <div class="email-field-row">
-            <span class="email-field-key">From</span>
-            <span class="email-field-val" id="from-display"></span>
-          </div>
-          <div class="email-field-row">
-            <span class="email-field-key">Subject</span>
-            <span class="email-field-val" id="subject-display"></span>
-          </div>
-        </div>
-        <div class="email-body" id="body-display"></div>
-        <div class="email-actions">
-          <button class="action-btn" onclick="copyEmail(event)">Copy email</button>
-          <button class="action-btn" onclick="generateEmail()">Regenerate</button>
-          <a class="action-btn" href="/api/checkout?plan=pro" style="text-decoration:none">Upgrade for unlimited →</a>
-        </div>
-      </div>
-    </div>
-
+  <div class="steps-grid">
+    <div class="step-card"><div class="step-num">01</div><div class="step-title">Enter your details</div><div class="step-desc">Your name, company, target, and what you're offering. Takes 30 seconds.</div></div>
+    <div class="step-card"><div class="step-num">02</div><div class="step-title">Pick a tone</div><div class="step-desc">Professional, friendly, bold, or ultra-concise. PitchForge adapts to your style.</div></div>
+    <div class="step-card"><div class="step-num">03</div><div class="step-title">Generate instantly</div><div class="step-desc">Claude writes a personalized email in under 10 seconds — subject line included.</div></div>
+    <div class="step-card"><div class="step-num">04</div><div class="step-title">Copy and send</div><div class="step-desc">One click to copy. All your emails saved in your history for easy reuse.</div></div>
   </div>
 </section>
 
-<!-- TESTIMONIALS -->
 <section class="testimonials">
   <div class="testimonials-inner">
     <p class="section-label">What users say</p>
@@ -565,214 +167,95 @@
     <div class="testimonial-grid">
       <div class="testimonial-card">
         <div class="quote-mark">"</div>
-        <p class="testimonial-text">Booked 3 calls in my first week. The emails actually sound like me, not a robot. I've tried every tool out there — this is the only one I kept.</p>
-        <p class="testimonial-author">Marcus D.</p>
-        <p class="testimonial-role">Freelance designer, New York</p>
+        <p class="testimonial-text">Booked 3 calls in my first week. The emails actually sound like me, not a robot. I've tried every tool — this is the only one I kept.</p>
+        <p class="testimonial-author">Marcus D.</p><p class="testimonial-role">Freelance designer, New York</p>
       </div>
       <div class="testimonial-card">
         <div class="quote-mark">"</div>
-        <p class="testimonial-text">I was spending 45 minutes crafting each cold email. Now it's 45 seconds. My whole SDR team is obsessed — we canceled three other subscriptions.</p>
-        <p class="testimonial-author">Priya M.</p>
-        <p class="testimonial-role">SDR, Series B startup</p>
+        <p class="testimonial-text">I was spending 45 minutes per cold email. Now it's 45 seconds. My whole SDR team is obsessed — we canceled three other subscriptions.</p>
+        <p class="testimonial-author">Priya M.</p><p class="testimonial-role">SDR, Series B startup</p>
       </div>
       <div class="testimonial-card">
         <div class="quote-mark">"</div>
-        <p class="testimonial-text">PitchForge helped us close our biggest client last quarter. The email it wrote was sharper than anything our team would have come up with ourselves.</p>
-        <p class="testimonial-author">James T.</p>
-        <p class="testimonial-role">Founder, B2B SaaS</p>
+        <p class="testimonial-text">PitchForge helped us close our biggest client last quarter. The email it wrote was sharper than anything our team would have come up with.</p>
+        <p class="testimonial-author">James T.</p><p class="testimonial-role">Founder, B2B SaaS</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- PRICING -->
 <section class="pricing" id="pricing-section">
   <p class="section-label">Pricing</p>
   <h2 class="section-title">Start free. Scale when ready.</h2>
   <div class="pricing-grid">
-
     <div class="pricing-card">
       <p class="plan-label">Free</p>
-      <div class="plan-price-num">$0</div>
-      <div class="plan-price-period">/ month</div>
+      <div class="plan-price-num">$0</div><div class="plan-price-period">/ month</div>
       <ul class="plan-features">
         <li><span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00b578" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>5 emails per month</li>
         <li><span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00b578" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>All 4 tone modes</li>
-        <li><span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00b578" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Copy &amp; export</li>
+        <li><span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00b578" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Email history</li>
       </ul>
-      <button class="plan-btn btn-outline" onclick="document.getElementById('tool-section').scrollIntoView({behavior:'smooth'})">Get started free</button>
+      <a class="plan-btn btn-outline" href="/login.html">Get started free</a>
     </div>
-
     <div class="pricing-card featured">
       <p class="plan-label">Pro</p>
       <div class="plan-top">
-        <div>
-          <div class="plan-price-num">$19</div>
-          <div class="plan-price-period">/ month</div>
-        </div>
+        <div><div class="plan-price-num">$19</div><div class="plan-price-period">/ month</div></div>
         <span class="pop-tag">Most popular</span>
       </div>
       <ul class="plan-features">
         <li><span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00d68f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Unlimited emails</li>
         <li><span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00d68f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>A/B subject line variants</li>
-        <li><span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00d68f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>3-email follow-up sequences</li>
-        <li><span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00d68f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Email history &amp; templates</li>
+        <li><span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00d68f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Follow-up sequences</li>
+        <li><span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00d68f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Full email history</li>
       </ul>
-      <a class="plan-btn btn-mint" href="/api/checkout?plan=pro">Upgrade to Pro</a>
+      <a class="plan-btn btn-mint" href="/login.html">Get started</a>
     </div>
-
     <div class="pricing-card">
       <p class="plan-label">Team</p>
-      <div class="plan-price-num">$79</div>
-      <div class="plan-price-period">/ month</div>
+      <div class="plan-price-num">$79</div><div class="plan-price-period">/ month</div>
       <ul class="plan-features">
         <li><span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00b578" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Everything in Pro</li>
         <li><span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00b578" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Up to 10 seats</li>
         <li><span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00b578" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Shared template library</li>
         <li><span class="feat-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#00b578" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>CRM integrations</li>
       </ul>
-      <a class="plan-btn btn-outline" href="/api/checkout?plan=team">Contact sales</a>
+      <a class="plan-btn btn-outline" href="/login.html">Get started</a>
     </div>
-
   </div>
 </section>
 
-<!-- FOOTER -->
+<div class="cta-banner">
+  <div class="cta-inner">
+    <h2>Start writing emails that<br><em>actually convert.</em></h2>
+    <p>Join thousands of reps, freelancers, and founders who generate cold emails in under 10 seconds.</p>
+    <a class="btn-hero" href="/login.html">Create free account →</a>
+  </div>
+</div>
+
 <footer>
   <div class="footer-inner">
     <span class="footer-logo">PitchForge</span>
-    <span class="footer-copy">© 2026 PitchForge &middot; All rights reserved</span>
+    <span class="footer-copy">© 2026 PitchForge · All rights reserved</span>
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
-  /* ── FREE TIER TRACKING ── */
-  const FREE_LIMIT = 5;
-
-  function getUsage() {
-    return parseInt(localStorage.getItem('pf_usage') || '0', 10);
-  }
-
-  function incrementUsage() {
-    const next = getUsage() + 1;
-    localStorage.setItem('pf_usage', next);
-    return next;
-  }
-
-  function renderUsage() {
-    const used = getUsage();
-    const remaining = Math.max(0, FREE_LIMIT - used);
-    const pipsEl = document.getElementById('usage-pips');
-    const textEl = document.getElementById('usage-text');
-
-    pipsEl.innerHTML = '';
-    for (let i = 0; i < FREE_LIMIT; i++) {
-      const pip = document.createElement('div');
-      pip.className = 'pip ' + (i < used ? 'used' : 'empty');
-      pipsEl.appendChild(pip);
+  const sb = supabase.createClient(
+    'https://ixazhhmcgtgrknmwndbp.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4YXpoaG1jZ3RncmtubXduZGJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk4NDQ1OTAsImV4cCI6MjA3NTQyMDU5MH0.asvClCcNhiZwOZDlNhYB8PKd6Um1lbAdUFTwfaX_O_8'
+  );
+  // If already logged in, update nav to show dashboard link
+  sb.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+      document.getElementById('nav-signin').textContent = 'Dashboard';
+      document.getElementById('nav-signin').href = '/dashboard.html';
+      document.getElementById('nav-cta').textContent = 'Go to dashboard →';
+      document.getElementById('nav-cta').href = '/dashboard.html';
     }
-
-    if (remaining === 0) {
-      textEl.textContent = 'Free emails used — upgrade for unlimited';
-      textEl.style.color = 'var(--mint-dim)';
-    } else {
-      textEl.textContent = `${remaining} free email${remaining === 1 ? '' : 's'} remaining`;
-    }
-  }
-
-  renderUsage();
-
-  /* ── TONE ── */
-  let selectedTone = 'professional';
-  function setTone(btn, tone) {
-    document.querySelectorAll('.tone-pill').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    selectedTone = tone;
-  }
-
-  /* ── GENERATE ── */
-  async function generateEmail() {
-    const sender    = document.getElementById('sender').value.trim();
-    const target    = document.getElementById('target').value.trim();
-    const offer     = document.getElementById('offer').value.trim();
-    const cta       = document.getElementById('cta').value.trim();
-    const errorEl   = document.getElementById('error');
-    const loadingEl = document.getElementById('loading');
-    const resultEl  = document.getElementById('result');
-    const nudgeEl   = document.getElementById('upgrade-nudge');
-    const genBtn    = document.getElementById('gen-btn');
-
-    errorEl.style.display = 'none';
-    nudgeEl.style.display = 'none';
-
-    if (!sender || !target || !offer || !cta) {
-      errorEl.textContent = 'Please fill in all four fields before generating.';
-      errorEl.style.display = 'block';
-      return;
-    }
-
-    // Check free tier
-    if (getUsage() >= FREE_LIMIT) {
-      nudgeEl.style.display = 'block';
-      nudgeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      return;
-    }
-
-    genBtn.disabled = true;
-    loadingEl.style.display = 'flex';
-    resultEl.style.display = 'none';
-
-    try {
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sender, target, offer, cta, tone: selectedTone }),
-      });
-
-      if (!res.ok) {
-        const e = await res.json().catch(() => ({}));
-        throw new Error(e?.error || `Error ${res.status}`);
-      }
-
-      const data = await res.json();
-
-      document.getElementById('to-display').textContent      = target;
-      document.getElementById('from-display').textContent    = sender;
-      document.getElementById('subject-display').textContent = data.subject;
-      document.getElementById('body-display').textContent    = data.body;
-
-      resultEl.style.display = 'block';
-
-      // Increment usage and re-render pips
-      incrementUsage();
-      renderUsage();
-
-      setTimeout(() => resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
-
-    } catch (e) {
-      errorEl.textContent = 'Error: ' + (e.message || 'please try again.');
-      errorEl.style.display = 'block';
-    } finally {
-      genBtn.disabled = false;
-      loadingEl.style.display = 'none';
-    }
-  }
-
-  function copyEmail(evt) {
-    const subject = document.getElementById('subject-display').textContent;
-    const body    = document.getElementById('body-display').textContent;
-    navigator.clipboard.writeText(`Subject: ${subject}\n\n${body}`).then(() => {
-      const btn = evt.target;
-      btn.textContent = 'Copied!';
-      setTimeout(() => btn.textContent = 'Copy email', 1800);
-    });
-  }
-
-  // Cmd/Ctrl + Enter to generate
-  document.addEventListener('keydown', e => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') generateEmail();
   });
 </script>
-
 </body>
 </html>
