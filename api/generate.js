@@ -95,10 +95,10 @@ export default async function handler(req, res) {
   }
 
   const toneMap = {
-    professional: 'professional and polished, appropriate for senior B2B stakeholders',
-    friendly:     'warm and conversational, like reaching out through a mutual connection',
-    bold:         'bold, direct, and confident — zero fluff, straight to the value',
-    concise:      'ultra-concise (under 75 words total body), every single word earns its place',
+    professional: 'professional and polished, appropriate for senior B2B stakeholders. 60-100 words.',
+    friendly:     'warm and conversational, like reaching out through a mutual connection. 60-90 words.',
+    bold:         'bold, direct, and confident — zero fluff, straight to the value. 50-80 words.',
+    concise:      'ultra-concise and punchy. MUST be 50-75 words total. Every single word earns its place. Short punchy sentences. No filler. Maximum impact minimum words. Think tweet-length paragraphs.',
   };
 
   const prompt = `You are a world-class cold email copywriter. Write a cold outreach email:
@@ -113,12 +113,13 @@ Respond ONLY with valid JSON, no markdown, no preamble:
 {"subject":"subject line here","body":"email body, use \\n for line breaks"}
 
 Rules:
-- Subject: under 8 words, intriguing not clickbait, no emojis, no spam words
-- No cliche openers (no "hope this finds you", "I am reaching out", etc.)
-- Open with something specific inferred from their company or role
-- Maximum 3 short paragraphs, 50-100 words ideal
-- One clear question as your CTA
-- Natural sign-off using sender's first name`;
+- Subject: under 6 words, specific not clever, no emojis, no spam words
+- No cliche openers whatsoever (no "hope this finds you", "I am reaching out", "my name is", etc.)
+- Open line must reference something specific about the target company or role
+- Maximum 3 short paragraphs
+- Exactly one question as your CTA — make it easy to say yes to
+- Natural first-name sign-off
+- For concise tone: ruthlessly cut every unnecessary word. If a sentence can be shorter, make it shorter.`;
 
   try {
     const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {

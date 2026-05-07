@@ -38,7 +38,7 @@ export default async function handler(req, res) {
     concise:      'ultra-concise, every word counts',
   };
 
-  const prompt = `You are a world-class cold email copywriter. A prospect was sent the following cold email and has not replied. Write a 3-email follow-up sequence to send over the next two weeks.
+  const prompt = `You are a world-class cold email copywriter. A prospect was sent the following cold email and has not replied. Write a 5-email follow-up sequence to send over the next 30 days.
 
 ORIGINAL EMAIL SENT:
 Subject: ${originalSubject}
@@ -51,23 +51,27 @@ Offer: ${offer}
 Desired outcome: ${cta}
 Tone: ${toneMap[tone] || toneMap.professional}
 
-Write 3 follow-up emails. Each must:
+Write 5 follow-up emails. Each must:
 - Reference the previous email without being desperate or pushy
-- Offer a fresh angle, new piece of value, or different framing each time
+- Offer a completely fresh angle, new piece of value, or different framing each time
 - Be shorter than the original (30-60 words max each)
-- Feel human, not automated
-- Have a different subject line each time (use RE: sparingly — only on email 1)
+- Feel human and natural, not automated
+- Have a different subject line each time
 
-Timing:
-- Follow-up 1: Day 3 after original (gentle nudge, new angle)
-- Follow-up 2: Day 7 after original (provide value — a tip, insight, or relevant stat)
-- Follow-up 3: Day 14 after original (the breakup email — give them an easy out)
+Timing and angles:
+- Follow-up 1: Day 3 — gentle nudge, acknowledge they're busy, reframe the value prop
+- Follow-up 2: Day 7 — provide genuine value (a tip, insight, relevant stat, or case study)
+- Follow-up 3: Day 14 — try a completely different angle or hook
+- Follow-up 4: Day 21 — social proof or a specific result another customer got
+- Follow-up 5: Day 30 — the breakup email, give them an easy out, leave on good terms
 
 Respond ONLY with valid JSON, no markdown, no preamble:
 {
   "followup1": { "subject": "...", "body": "..." },
   "followup2": { "subject": "...", "body": "..." },
-  "followup3": { "subject": "...", "body": "..." }
+  "followup3": { "subject": "...", "body": "..." },
+  "followup4": { "subject": "...", "body": "..." },
+  "followup5": { "subject": "...", "body": "..." }
 }`;
 
   try {
@@ -108,6 +112,12 @@ Respond ONLY with valid JSON, no markdown, no preamble:
       followup_3_subject:  parsed.followup3.subject,
       followup_3_body:     parsed.followup3.body,
       followup_3_day:      14,
+      followup_4_subject:  parsed.followup4.subject,
+      followup_4_body:     parsed.followup4.body,
+      followup_4_day:      21,
+      followup_5_subject:  parsed.followup5.subject,
+      followup_5_body:     parsed.followup5.body,
+      followup_5_day:      30,
     });
 
     if (insertError) console.error('Sequence save error:', insertError);
@@ -116,6 +126,8 @@ Respond ONLY with valid JSON, no markdown, no preamble:
       followup1: { subject: parsed.followup1.subject, body: parsed.followup1.body, day: 3 },
       followup2: { subject: parsed.followup2.subject, body: parsed.followup2.body, day: 7 },
       followup3: { subject: parsed.followup3.subject, body: parsed.followup3.body, day: 14 },
+      followup4: { subject: parsed.followup4.subject, body: parsed.followup4.body, day: 21 },
+      followup5: { subject: parsed.followup5.subject, body: parsed.followup5.body, day: 30 },
     });
 
   } catch (e) {
