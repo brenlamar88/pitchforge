@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PitchForge — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --forest:#0b1e13;--forest-mid:#142b1d;--forest-light:#1d3d28;
+      --mint:#00d68f;--mint-dim:#00b578;--mint-pale:rgba(0,214,143,0.12);
+      --cream:#f9f7f1;--cream-dark:#f0ede5;--white:#fff;
+      --ink:#0f1a13;--ink-mid:#3a4e3f;--ink-light:#7a8f80;--ink-xlight:#b0c0b5;
+      --border:rgba(15,26,19,0.10);--border-mid:rgba(15,26,19,0.18);
+      --on-dark:rgba(255,255,255,0.50);--on-dark-border:rgba(255,255,255,0.10);
+      --danger:#c0392b;--danger-bg:#fdf0f0;
+      --warning:#e8a020;--warning-bg:#fef9ec;
+      --radius:10px;--radius-lg:16px;--radius-xl:24px;
+      --fd:'Fraunces',Georgia,serif;--fb:'DM Sans',system-ui,sans-serif;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:var(--fb);background:var(--cream);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
+
+    /* Loading */
+    #loading-screen{position:fixed;inset:0;background:var(--forest);display:flex;align-items:center;justify-content:center;z-index:999;transition:opacity 0.3s}
+    .loading-logo{font-family:var(--fd);font-size:24px;color:white;letter-spacing:-0.02em;animation:pulse-o 1.5s ease infinite}
+    @keyframes pulse-o{0%,100%{opacity:1}50%{opacity:0.4}}
+
+    /* Nav */
+    nav{background:var(--forest);border-bottom:0.5px solid var(--on-dark-border);padding:0 2rem;position:sticky;top:0;z-index:100}
+    .nav-inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;height:60px}
+    .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+    .logo-mark{width:30px;height:30px;background:var(--mint);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .logo-name{font-family:var(--fd);font-size:17px;font-weight:500;color:white;letter-spacing:-0.02em}
+    .nav-right{display:flex;align-items:center;gap:1rem}
+    .nav-user{font-size:13px;color:var(--on-dark)}
+    .plan-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px}
+    .plan-free{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5)}
+    .plan-pro{background:var(--mint-pale);color:var(--mint)}
+    .plan-team{background:rgba(100,180,255,0.12);color:#85b7eb}
+    .sign-out-btn{font-size:13px;color:var(--on-dark);background:none;border:none;font-family:var(--fb);cursor:pointer}
+    .sign-out-btn:hover{color:white}
+
+    /* Layout */
+    .layout{max-width:1200px;margin:0 auto;padding:2rem;display:grid;grid-template-columns:1fr 360px;gap:2rem;align-items:start}
+    @media(max-width:900px){.layout{grid-template-columns:1fr}}
+
+    /* Eyebrow + title */
+    .eyebrow{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light);margin-bottom:0.35rem}
+    .section-title{font-family:var(--fd);font-size:26px;font-weight:400;letter-spacing:-0.025em;color:var(--ink);margin-bottom:1.5rem;line-height:1.15}
+
+    /* Cards */
+    .card{background:var(--white);border:0.5px solid var(--border-mid);border-radius:var(--radius-xl);padding:2rem;margin-bottom:1.5rem;box-shadow:0 1px 3px rgba(15,26,19,0.04),0 4px 20px rgba(15,26,19,0.05)}
+    .sidebar-card{background:var(--white);border:0.5px solid var(--border-mid);border-radius:var(--radius-xl);padding:1.5rem;margin-bottom:1.25rem;box-shadow:0 1px 3px rgba(15,26,19,0.04),0 4px 20px rgba(15,26,19,0.05)}
+
+    /* Form */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.875rem}
+    .field{margin-bottom:1.125rem}
+    .field-label{display:block;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-light);margin-bottom:7px}
+    .field-input{width:100%;padding:10px 13px;font-size:14px;font-family:var(--fb);background:var(--cream);color:var(--ink);border:1px solid var(--border);border-radius:var(--radius);outline:none;transition:border-color 0.15s,background 0.15s}
+    .field-input:focus{border-color:var(--mint-dim);background:var(--white)}
+    .field-input::placeholder{color:var(--ink-xlight)}
+    .form-divider{height:0.5px;background:var(--border);margin:1.25rem 0}
+    .tone-row{display:flex;gap:7px;flex-wrap:wrap}
+    .tone-pill{padding:6px 14px;font-size:13px;font-family:var(--fb);background:var(--cream);color:var(--ink-mid);border:1px solid var(--border);border-radius:30px;cursor:pointer;transition:all 0.15s}
+    .tone-pill:hover{border-color:var(--mint-dim)}
+    .tone-pill.active{background:var(--forest);border-color:var(--forest);color:white;font-weight:500}
+    .gen-btn{width:100%;padding:13px;font-size:15px;font-weight:500;font-family:var(--fb);background:var(--forest);color:white;border:none;border-radius:var(--radius);cursor:pointer;transition:background 0.15s}
+    .gen-btn:hover{background:var(--forest-light)}
+    .gen-btn:disabled{opacity:0.4;cursor:not-allowed}
+    .loading-row{display:none;align-items:center;gap:10px;padding:1rem 0 0;font-size:13px;color:var(--ink-light)}
+    .spinner{width:15px;height:15px;border:2px solid var(--border-mid);border-top-color:var(--ink-mid);border-radius:50%;animation:spin 0.75s linear infinite;flex-shrink:0}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .error-msg{display:none;font-size:13px;color:#7a1f1f;background:#fdf0f0;border:0.5px solid rgba(122,31,31,0.18);border-radius:var(--radius);padding:10px 13px;margin-top:0.875rem}
+
+    /* Email result */
+    .result-wrapper{display:none;margin-top:1.5rem;animation:up 0.35s ease both}
+    @keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .result-eyebrow{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light);margin-bottom:0.875rem}
+    .result-eyebrow::before{content:'';width:7px;height:7px;background:var(--mint);border-radius:50%}
+    .email-card{background:var(--white);border:0.5px solid var(--border-mid);border-left:3px solid var(--mint);border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 3px 20px rgba(15,26,19,0.07)}
+    .email-header{background:var(--cream);border-bottom:0.5px solid var(--border);padding:0.875rem 1.25rem}
+    .email-row{display:flex;align-items:baseline;gap:10px;margin-bottom:5px}
+    .email-row:last-child{margin-bottom:0}
+    .email-key{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-light);min-width:48px;flex-shrink:0}
+    .email-val{color:var(--ink);font-size:13px}
+    #subject-display{font-weight:500}
+    .email-body{padding:1.5rem 1.25rem;font-size:14px;line-height:1.9;color:var(--ink-mid);white-space:pre-wrap}
+    .email-actions{border-top:0.5px solid var(--border);padding:0.875rem 1.25rem;display:flex;gap:7px;flex-wrap:wrap;background:var(--cream)}
+    .action-btn{padding:6px 14px;font-size:12px;font-weight:500;font-family:var(--fb);background:var(--white);color:var(--ink-mid);border:0.5px solid var(--border-mid);border-radius:var(--radius);cursor:pointer;transition:all 0.15s;text-decoration:none;display:inline-block}
+    .action-btn:hover{background:var(--forest);color:white;border-color:var(--forest)}
+    .action-btn.pro-feature{background:var(--mint-pale);color:var(--mint-dim);border-color:rgba(0,214,143,0.25)}
+    .action-btn.pro-feature:hover{background:var(--mint);color:var(--forest);border-color:var(--mint)}
+
+    /* ── SCORE CARD ── */
+    .score-card{background:var(--cream);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-top:1.25rem;animation:up 0.4s 0.1s ease both}
+    .score-top{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
+    .score-circle{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;flex-shrink:0;font-family:var(--fd)}
+    .score-circle.grade-a{background:#e1f5ee;border:2px solid var(--mint)}
+    .score-circle.grade-b{background:#e6f1fb;border:2px solid #378add}
+    .score-circle.grade-c{background:var(--warning-bg);border:2px solid var(--warning)}
+    .score-circle.grade-d,.score-circle.grade-f{background:var(--danger-bg);border:2px solid var(--danger)}
+    .score-num{font-size:20px;font-weight:500;line-height:1}
+    .score-grade{font-size:11px;font-weight:500;letter-spacing:0.05em}
+    .score-circle.grade-a .score-num,.score-circle.grade-a .score-grade{color:#085041}
+    .score-circle.grade-b .score-num,.score-circle.grade-b .score-grade{color:#0c447c}
+    .score-circle.grade-c .score-num,.score-circle.grade-c .score-grade{color:#7a5010}
+    .score-circle.grade-d .score-num,.score-circle.grade-d .score-grade,.score-circle.grade-f .score-num,.score-circle.grade-f .score-grade{color:var(--danger)}
+    .score-label{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:3px}
+    .score-sublabel{font-size:12px;color:var(--ink-light)}
+    .score-breakdown{display:flex;flex-direction:column;gap:6px}
+    .score-row{display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:0.5px solid var(--border)}
+    .score-row:last-child{border-bottom:none}
+    .score-row-label{color:var(--ink-mid)}
+    .score-row-right{display:flex;align-items:center;gap:8px}
+    .score-pts{font-weight:500;color:var(--ink);min-width:32px;text-align:right}
+    .score-bar-track{width:80px;height:4px;background:var(--border-mid);border-radius:2px;overflow:hidden}
+    .score-bar-fill{height:100%;border-radius:2px;transition:width 0.5s ease}
+    .score-tip{font-size:11px;color:var(--ink-light);margin-top:2px}
+
+    /* ── SEQUENCE SECTION ── */
+    .sequence-wrapper{display:none;margin-top:1.5rem;animation:up 0.4s ease both}
+    .sequence-header{display:flex;align-items:center;gap:8px;margin-bottom:1.25rem}
+    .sequence-eyebrow{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light)}
+    .sequence-loading{display:none;align-items:center;gap:10px;font-size:13px;color:var(--ink-light);padding:1.5rem 0}
+    .followup-card{border:0.5px solid var(--border-mid);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:1rem;background:var(--white)}
+    .followup-header{background:var(--cream);border-bottom:0.5px solid var(--border);padding:0.75rem 1.25rem;display:flex;align-items:center;justify-content:space-between}
+    .followup-day{font-size:12px;font-weight:500;color:var(--mint-dim);background:var(--mint-pale);padding:3px 10px;border-radius:20px}
+    .followup-subject{font-size:13px;font-weight:500;color:var(--ink)}
+    .followup-body{padding:1.25rem;font-size:13px;line-height:1.85;color:var(--ink-mid);white-space:pre-wrap}
+    .followup-actions{border-top:0.5px solid var(--border);padding:0.75rem 1.25rem;background:var(--cream)}
+
+    /* History */
+    .history-list{display:flex;flex-direction:column;gap:0.75rem}
+    .history-item{background:var(--cream);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem;cursor:pointer;transition:border-color 0.15s;position:relative}
+    .history-item:hover{border-color:var(--mint-dim)}
+    .history-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+    .history-target{font-size:13px;font-weight:500;color:var(--ink)}
+    .history-score-pill{font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px}
+    .score-pill-a{background:#e1f5ee;color:#085041}
+    .score-pill-b{background:#e6f1fb;color:#0c447c}
+    .score-pill-c{background:var(--warning-bg);color:#7a5010}
+    .score-pill-d,.score-pill-f{background:var(--danger-bg);color:var(--danger)}
+    .history-subject{font-size:12px;color:var(--ink-mid);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .history-date{font-size:11px;color:var(--ink-xlight)}
+    .history-delete{position:absolute;top:10px;right:10px;width:22px;height:22px;background:none;border:0.5px solid var(--border);border-radius:50%;cursor:pointer;font-size:12px;color:var(--ink-light);display:flex;align-items:center;justify-content:center;opacity:0;transition:all 0.15s}
+    .history-item:hover .history-delete{opacity:1}
+    .history-delete:hover{background:#fdf0f0;color:var(--danger)}
+    .empty-history{text-align:center;padding:2rem 1rem;color:var(--ink-light);font-size:13px}
+
+    /* Usage */
+    .usage-label{font-size:12px;color:var(--ink-light);margin-bottom:0.5rem;display:flex;justify-content:space-between}
+    .usage-num{font-size:13px;font-weight:500;color:var(--ink)}
+    .usage-bar-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:0.625rem}
+    .usage-bar-fill{height:100%;background:var(--mint);border-radius:3px;transition:width 0.4s ease}
+    .usage-bar-fill.warning{background:var(--warning)}
+    .usage-bar-fill.danger{background:var(--danger)}
+    .upgrade-btn{display:block;width:100%;padding:10px;text-align:center;font-size:13px;font-weight:500;font-family:var(--fb);background:var(--mint);color:var(--forest);border:none;border-radius:var(--radius);cursor:pointer;text-decoration:none;margin-top:0.875rem}
+    .upgrade-btn:hover{background:var(--mint-dim)}
+
+    /* Account rows */
+    .account-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:13px}
+    .account-row:last-child{border-bottom:none}
+    .account-key{color:var(--ink-light)}
+    .account-val{color:var(--ink);font-weight:500}
+
+    @media(max-width:560px){.form-grid{grid-template-columns:1fr}.card{padding:1.25rem}}
+  </style>
+</head>
+<body>
+
+<div id="loading-screen"><span class="loading-logo">PitchForge</span></div>
+
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="/dashboard.html">
+      <div class="logo-mark"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M3.5 9.5l4 4 7-8" stroke="#0b1e13" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="logo-name">PitchForge</span>
+    </a>
+    <div class="nav-right">
+      <span class="nav-user" id="nav-email"></span>
+      <span class="plan-badge plan-free" id="nav-plan">Free</span>
+      <button class="sign-out-btn" onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+  <!-- LEFT COLUMN -->
+  <div>
+    <!-- Generate -->
+    <div class="card">
+      <p class="eyebrow">Generate</p>
+      <h2 class="section-title">Write your cold email.</h2>
+      <div class="form-grid">
+        <div class="field">
+          <label class="field-label" for="sender">Your name &amp; company</label>
+          <input class="field-input" type="text" id="sender" placeholder="e.g. Alex Chen, Acme Inc.">
+        </div>
+        <div class="field">
+          <label class="field-label" for="target">Target person &amp; company</label>
+          <input class="field-input" type="text" id="target" placeholder="e.g. Sarah Lee, Stripe">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="offer">What you're offering</label>
+        <input class="field-input" type="text" id="offer" placeholder="e.g. A tool that cuts email writing time by 70%">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label class="field-label" for="cta">Desired outcome / CTA</label>
+        <input class="field-input" type="text" id="cta" placeholder="e.g. 15-minute call this week">
+      </div>
+      <div class="form-divider"></div>
+      <div class="field" style="margin-bottom:0">
+        <label class="field-label">Tone</label>
+        <div class="tone-row">
+          <button class="tone-pill active" onclick="setTone(this,'professional')">Professional</button>
+          <button class="tone-pill" onclick="setTone(this,'friendly')">Friendly</button>
+          <button class="tone-pill" onclick="setTone(this,'bold')">Bold &amp; direct</button>
+          <button class="tone-pill" onclick="setTone(this,'concise')">Ultra-concise</button>
+        </div>
+      </div>
+      <div class="form-divider"></div>
+      <button class="gen-btn" id="gen-btn" onclick="generateEmail()">Generate cold email →</button>
+      <div class="loading-row" id="loading"><div class="spinner"></div><span>Crafting your email…</span></div>
+      <div class="error-msg" id="error"></div>
+
+      <!-- Result -->
+      <div class="result-wrapper" id="result">
+        <div class="result-eyebrow">Your email is ready</div>
+        <div class="email-card">
+          <div class="email-header">
+            <div class="email-row"><span class="email-key">To</span><span class="email-val" id="to-disp"></span></div>
+            <div class="email-row"><span class="email-key">From</span><span class="email-val" id="from-disp"></span></div>
+            <div class="email-row"><span class="email-key">Subject</span><span class="email-val" id="subject-display"></span></div>
+          </div>
+          <div class="email-body" id="body-display"></div>
+          <div class="email-actions">
+            <button class="action-btn" onclick="copyEmail(event)">Copy email</button>
+            <button class="action-btn" onclick="generateEmail()">Regenerate</button>
+            <button class="action-btn pro-feature" id="seq-btn" onclick="generateSequence()">Generate follow-ups →</button>
+          </div>
+        </div>
+
+        <!-- Score card -->
+        <div class="score-card" id="score-card">
+          <div class="score-top">
+            <div class="score-circle" id="score-circle">
+              <span class="score-num" id="score-num">—</span>
+              <span class="score-grade" id="score-grade">—</span>
+            </div>
+            <div>
+              <div class="score-label" id="score-label">Analyzing...</div>
+              <div class="score-sublabel" id="score-sublabel">Email quality score out of 100</div>
+            </div>
+          </div>
+          <div class="score-breakdown" id="score-breakdown"></div>
+        </div>
+      </div>
+
+      <!-- Sequence -->
+      <div class="sequence-wrapper" id="sequence-wrapper">
+        <div class="sequence-header">
+          <div class="result-eyebrow" style="margin:0">Follow-up sequence</div>
+        </div>
+        <div class="sequence-loading" id="seq-loading"><div class="spinner"></div><span>Writing your follow-up sequence…</span></div>
+        <div id="sequence-cards"></div>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="card">
+      <p class="eyebrow">History</p>
+      <h2 class="section-title" style="margin-bottom:1.25rem">Past emails.</h2>
+      <div class="history-list" id="history-list">
+        <div class="empty-history"><p>No emails yet. Generate your first one above.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDEBAR -->
+  <div>
+    <!-- Usage -->
+    <div class="sidebar-card" id="usage-card">
+      <p class="eyebrow" style="margin-bottom:1rem">Usage</p>
+      <div class="usage-label">
+        <span>Emails this month</span>
+        <span class="usage-num" id="usage-num">0 / 5</span>
+      </div>
+      <div class="usage-bar-track"><div class="usage-bar-fill" id="usage-fill" style="width:0%"></div></div>
+      <p style="font-size:12px;color:var(--ink-light)" id="usage-sub">5 free emails per month.</p>
+      <a class="upgrade-btn" id="upgrade-btn" href="#" onclick="goToCheckout(event,'pro')">Upgrade to Pro — $19/mo →</a>
+    </div>
+
+    <!-- Account -->
+    <div class="sidebar-card">
+      <p class="eyebrow" style="margin-bottom:1rem">Account</p>
+      <div class="account-row"><span class="account-key">Email</span><span class="account-val" id="acct-email" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span></div>
+      <div class="account-row"><span class="account-key">Plan</span><span class="account-val" id="acct-plan">Free</span></div>
+      <div class="account-row"><span class="account-key">Member since</span><span class="account-val" id="acct-since"></span></div>
+      <div class="account-row"><span class="account-key">Resets</span><span class="account-val" id="acct-reset"></span></div>
+    </div>
+
+    <!-- Pro upgrade -->
+    <div class="sidebar-card" id="upgrade-card" style="background:var(--forest);border-color:var(--forest)">
+      <p style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.35);margin-bottom:0.75rem">Go unlimited</p>
+      <p style="font-family:var(--fd);font-size:22px;font-weight:400;color:white;letter-spacing:-0.02em;margin-bottom:0.75rem;line-height:1.2">Upgrade to <span style="font-style:italic;color:var(--mint)">Pro.</span></p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.55);font-weight:300;line-height:1.65;margin-bottom:1.25rem">Unlimited emails, email scoring, 3-email follow-up sequences, and full history.</p>
+      <a href="#" onclick="goToCheckout(event,'pro')" style="display:block;width:100%;padding:11px;text-align:center;font-size:13px;font-weight:500;font-family:var(--fb);background:var(--mint);color:var(--forest);border-radius:var(--radius);text-decoration:none">Upgrade — $19/mo →</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+  const SUPABASE_URL = 'https://ixazhhmcgtgrknmwndbp.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4YXpoaG1jZ3RncmtubXduZGJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk4NDQ1OTAsImV4cCI6MjA3NTQyMDU5MH0.asvClCcNhiZwOZDlNhYB8PKd6Um1lbAdUFTwfaX_O_8';
+  const FREE_LIMIT = 5;
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let currentSession = null;
+  let currentProfile = null;
+  let selectedTone   = 'professional';
+  let currentEmailId = null;
+  let currentEmailData = null;
+
+  // ── INIT ──────────────────────────────────────────────────────
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = '/login.html'; return; }
+    currentSession = session;
+    await loadProfile();
+    await loadHistory();
+    document.getElementById('loading-screen').style.opacity = '0';
+    setTimeout(() => document.getElementById('loading-screen').style.display = 'none', 300);
+  }
+
+  async function loadProfile() {
+    const user = currentSession.user;
+    const { data: profile } = await sb.from('pf_profiles').select('*').eq('id', user.id).single();
+    currentProfile = profile;
+    const plan = profile?.plan || 'free';
+
+    document.getElementById('nav-email').textContent = user.email;
+    const badge = document.getElementById('nav-plan');
+    badge.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+    badge.className = `plan-badge plan-${plan}`;
+
+    document.getElementById('acct-email').textContent = user.email;
+    document.getElementById('acct-plan').textContent  = plan.charAt(0).toUpperCase() + plan.slice(1);
+    document.getElementById('acct-since').textContent = new Date(user.created_at).toLocaleDateString('en-US',{month:'short',year:'numeric'});
+    document.getElementById('acct-reset').textContent = profile?.usage_reset_at
+      ? new Date(profile.usage_reset_at).toLocaleDateString('en-US',{month:'short',day:'numeric'})
+      : '—';
+
+    renderUsage(profile);
+
+    if (plan === 'pro' || plan === 'team') {
+      document.getElementById('upgrade-card').style.display = 'none';
+      document.getElementById('upgrade-btn').style.display  = 'none';
+    }
+
+    // Show sequences button only for pro
+    const seqBtn = document.getElementById('seq-btn');
+    if (plan === 'free') {
+      seqBtn.textContent = 'Generate follow-ups (Pro) →';
+    } else {
+      seqBtn.classList.remove('pro-feature');
+      seqBtn.textContent = 'Generate follow-ups →';
+    }
+  }
+
+  function renderUsage(profile) {
+    const used  = profile?.emails_used_this_month || 0;
+    const plan  = profile?.plan || 'free';
+    const pct   = plan === 'free' ? Math.min((used / FREE_LIMIT) * 100, 100) : 100;
+    document.getElementById('usage-num').textContent = plan === 'free' ? `${used} / ${FREE_LIMIT}` : `${used} (unlimited)`;
+    const fill = document.getElementById('usage-fill');
+    fill.style.width = pct + '%';
+    fill.className = 'usage-bar-fill' + (pct >= 100 ? ' danger' : pct >= 80 ? ' warning' : '');
+    document.getElementById('usage-sub').textContent = plan !== 'free'
+      ? 'Pro plan — unlimited emails every month.'
+      : used >= FREE_LIMIT
+        ? 'Limit reached. Upgrade for unlimited.'
+        : `${FREE_LIMIT - used} free email${FREE_LIMIT - used === 1 ? '' : 's'} remaining.`;
+  }
+
+  // ── HISTORY ───────────────────────────────────────────────────
+  async function loadHistory() {
+    const { data: emails } = await sb.from('pf_emails').select('*')
+      .eq('user_id', currentSession.user.id)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    renderHistory(emails || []);
+  }
+
+  function gradeFromScore(score) {
+    if (score >= 88) return 'A';
+    if (score >= 75) return 'B';
+    if (score >= 60) return 'C';
+    if (score >= 45) return 'D';
+    return 'F';
+  }
+
+  function renderHistory(emails) {
+    const list = document.getElementById('history-list');
+    if (!emails.length) {
+      list.innerHTML = '<div class="empty-history"><p>No emails yet. Generate your first one above.</p></div>';
+      return;
+    }
+    list.innerHTML = emails.map(e => {
+      const grade = e.score ? gradeFromScore(e.score) : null;
+      const pillHtml = grade ? `<span class="history-score-pill score-pill-${grade.toLowerCase()}">${e.score} / 100</span>` : '';
+      return `
+        <div class="history-item" onclick="loadHistoryItem(${JSON.stringify(e).replace(/"/g,'&quot;')})">
+          <div class="history-top">
+            <span class="history-target">${escHtml(e.target)}</span>
+            ${pillHtml}
+          </div>
+          <div class="history-subject">${escHtml(e.subject)}</div>
+          <div class="history-date">${new Date(e.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+          <button class="history-delete" onclick="deleteEmail(event,'${e.id}')" title="Delete">×</button>
+        </div>`;
+    }).join('');
+  }
+
+  function loadHistoryItem(email) {
+    document.getElementById('sender').value = email.sender;
+    document.getElementById('target').value = email.target;
+    document.getElementById('offer').value  = email.offer;
+    document.getElementById('cta').value    = email.cta;
+    selectedTone = email.tone;
+    document.querySelectorAll('.tone-pill').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('onclick').includes(`'${email.tone}'`));
+    });
+    currentEmailId   = email.id;
+    currentEmailData = email;
+    showResult(email.subject, email.body, email.sender, email.target);
+    if (email.score) renderScore(email.score, email.score_breakdown);
+    document.getElementById('sequence-wrapper').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  async function deleteEmail(evt, id) {
+    evt.stopPropagation();
+    await sb.from('pf_emails').delete().eq('id', id);
+    await loadHistory();
+  }
+
+  // ── GENERATE ──────────────────────────────────────────────────
+  async function generateEmail() {
+    const sender = document.getElementById('sender').value.trim();
+    const target = document.getElementById('target').value.trim();
+    const offer  = document.getElementById('offer').value.trim();
+    const cta    = document.getElementById('cta').value.trim();
+    const errorEl   = document.getElementById('error');
+    const loadingEl = document.getElementById('loading');
+    const genBtn    = document.getElementById('gen-btn');
+    const resultEl  = document.getElementById('result');
+
+    errorEl.style.display = 'none';
+    if (!sender || !target || !offer || !cta) {
+      errorEl.textContent = 'Please fill in all four fields.';
+      errorEl.style.display = 'block'; return;
+    }
+
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = '/login.html'; return; }
+    currentSession = session;
+
+    genBtn.disabled = true;
+    loadingEl.style.display = 'flex';
+    resultEl.style.display  = 'none';
+    document.getElementById('sequence-wrapper').style.display = 'none';
+
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ sender, target, offer, cta, tone: selectedTone }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.error === 'free_limit_reached') {
+          errorEl.innerHTML = `You've used all ${FREE_LIMIT} free emails this month. <a href="#" onclick="goToCheckout(event,'pro')" style="color:var(--mint-dim);font-weight:500">Upgrade to Pro →</a>`;
+          errorEl.style.display = 'block';
+          document.getElementById('upgrade-card').scrollIntoView({ behavior:'smooth', block:'nearest' });
+        } else {
+          throw new Error(data.error || 'Something went wrong.');
+        }
+        return;
+      }
+
+      currentEmailId = data.emailId;
+      currentEmailData = { sender, target, offer, cta, tone: selectedTone, subject: data.subject, body: data.body };
+
+      showResult(data.subject, data.body, sender, target);
+      renderScore(data.score, data.breakdown);
+
+      if (currentProfile) {
+        currentProfile.emails_used_this_month = data.usage?.used || currentProfile.emails_used_this_month;
+        renderUsage(currentProfile);
+      }
+      await loadHistory();
+
+    } catch (e) {
+      errorEl.textContent = e.message;
+      errorEl.style.display = 'block';
+    } finally {
+      genBtn.disabled = false;
+      loadingEl.style.display = 'none';
+    }
+  }
+
+  function showResult(subject, body, sender, target) {
+    document.getElementById('subject-display').textContent = subject;
+    document.getElementById('body-display').textContent    = body;
+    document.getElementById('from-disp').textContent       = sender;
+    document.getElementById('to-disp').textContent         = target;
+    const r = document.getElementById('result');
+    r.style.display = 'block';
+    setTimeout(() => r.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
+  }
+
+  // ── SCORE ─────────────────────────────────────────────────────
+  function renderScore(score, breakdown) {
+    if (!score || !breakdown) return;
+    const grade = gradeFromScore(score);
+    const gradeLabels = { A:'Excellent', B:'Good', C:'Average', D:'Needs work', F:'Poor' };
+    const circle = document.getElementById('score-circle');
+    circle.className = `score-circle grade-${grade.toLowerCase()}`;
+    document.getElementById('score-num').textContent   = score;
+    document.getElementById('score-grade').textContent = grade;
+    document.getElementById('score-label').textContent = `${gradeLabels[grade]} email`;
+
+    const maxPts = { length:20, subject:20, opener:20, questions:15, personalization:15, spam:10 };
+    const labels = { length:'Length', subject:'Subject line', opener:'Opener', questions:'CTA / Question', personalization:'Personalization', spam:'Spam words' };
+
+    const bdEl = document.getElementById('score-breakdown');
+    bdEl.innerHTML = Object.entries(breakdown).map(([key, val]) => {
+      const max = maxPts[key] || 20;
+      const pct = Math.round((val.pts / max) * 100);
+      const color = pct >= 80 ? 'var(--mint)' : pct >= 50 ? 'var(--warning)' : 'var(--danger)';
+      return `
+        <div class="score-row">
+          <div>
+            <div class="score-row-label">${labels[key] || key}</div>
+            <div class="score-tip">${val.label}</div>
+          </div>
+          <div class="score-row-right">
+            <div class="score-bar-track"><div class="score-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+            <span class="score-pts">${val.pts}/${max}</span>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── SEQUENCE ──────────────────────────────────────────────────
+  async function generateSequence() {
+    if (!currentEmailData) return;
+
+    const plan = currentProfile?.plan || 'free';
+    if (plan === 'free') {
+      await goToCheckout(new Event('click'), 'pro');
+      return;
+    }
+
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = '/login.html'; return; }
+
+    const wrapper   = document.getElementById('sequence-wrapper');
+    const seqLoad   = document.getElementById('seq-loading');
+    const seqCards  = document.getElementById('sequence-cards');
+
+    wrapper.style.display  = 'block';
+    seqLoad.style.display  = 'flex';
+    seqCards.innerHTML     = '';
+    wrapper.scrollIntoView({ behavior:'smooth', block:'nearest' });
+
+    try {
+      const res = await fetch('/api/sequence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          sender:          currentEmailData.sender,
+          target:          currentEmailData.target,
+          offer:           currentEmailData.offer,
+          cta:             currentEmailData.cta,
+          tone:            currentEmailData.tone || selectedTone,
+          originalSubject: currentEmailData.subject,
+          originalBody:    currentEmailData.body,
+          emailId:         currentEmailId,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to generate sequence.');
+
+      const followups = [
+        { label: 'Day 3',  ...data.followup1 },
+        { label: 'Day 7',  ...data.followup2 },
+        { label: 'Day 14', ...data.followup3 },
+        { label: 'Day 21', ...data.followup4 },
+        { label: 'Day 30', ...data.followup5 },
+      ];
+
+      seqCards.innerHTML = followups.map((f, i) => `
+        <div class="followup-card">
+          <div class="followup-header">
+            <span class="followup-subject">${escHtml(f.subject)}</span>
+            <span class="followup-day">Send ${f.label}</span>
+          </div>
+          <div class="followup-body">${escHtml(f.body)}</div>
+          <div class="followup-actions">
+            <button class="action-btn" onclick="copyFollowup(event, ${i})">Copy</button>
+          </div>
+        </div>`).join('');
+
+      window._currentFollowups = followups;
+
+    } catch (e) {
+      seqCards.innerHTML = `<p style="font-size:13px;color:var(--danger);padding:1rem 0">${e.message}</p>`;
+    } finally {
+      seqLoad.style.display = 'none';
+    }
+  }
+
+  function copyFollowup(evt, index) {
+    const f = window._currentFollowups?.[index];
+    if (!f) return;
+    navigator.clipboard.writeText(`Subject: ${f.subject}\n\n${f.body}`).then(() => {
+      const btn = evt.target;
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 1800);
+    });
+  }
+
+  function copyEmail(evt) {
+    const subject = document.getElementById('subject-display').textContent;
+    const body    = document.getElementById('body-display').textContent;
+    navigator.clipboard.writeText(`Subject: ${subject}\n\n${body}`).then(() => {
+      const btn = evt.target;
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy email', 1800);
+    });
+  }
+
+  function setTone(btn, tone) {
+    document.querySelectorAll('.tone-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedTone = tone;
+  }
+
+  async function signOut() {
+    await sb.auth.signOut();
+    window.location.href = '/login.html';
+  }
+
+  async function goToCheckout(evt, plan) {
+    evt.preventDefault();
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = '/login.html'; return; }
+    window.location.href = `/api/checkout?plan=${plan}&token=${session.access_token}`;
+  }
+
+  function escHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  document.addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') generateEmail();
+  });
+
+  init();
+</script>
+</body>
+</html>
