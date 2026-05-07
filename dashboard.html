@@ -602,9 +602,11 @@
       if (!res.ok) throw new Error(data.error || 'Failed to generate sequence.');
 
       const followups = [
-        { label: 'Day 3', ...data.followup1 },
-        { label: 'Day 7', ...data.followup2 },
+        { label: 'Day 3',  ...data.followup1 },
+        { label: 'Day 7',  ...data.followup2 },
         { label: 'Day 14', ...data.followup3 },
+        { label: 'Day 21', ...data.followup4 },
+        { label: 'Day 30', ...data.followup5 },
       ];
 
       seqCards.innerHTML = followups.map((f, i) => `
